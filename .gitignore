@@ -1,3 +1,4 @@
 # exlude venv
 
 /venv
+/Database/images
