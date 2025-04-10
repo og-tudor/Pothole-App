@@ -18,7 +18,7 @@ cursor = conn.cursor()
 inserted = 0
 for entry in potholes:
     try:
-        image_path = os.path.join("./images", entry["image"])
+        image_path = os.path.join("./static/pothole_images", entry["image"])
 
         cursor.execute("""
             INSERT INTO potholes (timestamp, lat, lon, image_path)
