@@ -1,5 +1,6 @@
 // Global intensity multiplier
 let intensityMultiplier = 1.0;
+let potholeMarkers = [];
 
 // Initialize map centered on start point
 var map = L.map('map', {
@@ -72,7 +73,9 @@ fetch('/api/potholes')
                 maxWidth: "auto",
                 className: "big-popup"
             });
-            
+
+            // Pastram marker-ul pentru a-l putea șterge mai târziu
+            potholeMarkers.push({ marker, imagePath: p.image }); 
         });
     })
     .catch(err => {
@@ -105,3 +108,72 @@ map.on('zoomend', () => {
         }
     }
 });
+
+
+
+document.getElementById("settingsBtn").addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    if (sidebar.style.left === "0px") {
+        sidebar.style.left = "-320px";
+        overlay.style.display = "none";
+    } else {
+        sidebar.style.left = "0px";
+        overlay.style.display = "block";
+        loadImagesInSidebar();
+    }
+});
+
+// Dacă dai click pe overlay, închide sidebar-ul
+document.getElementById("overlay").addEventListener("click", () => {
+    document.getElementById("sidebar").style.left = "-320px";
+    document.getElementById("overlay").style.display = "none";
+});
+
+
+function loadImagesInSidebar() {
+    fetch('/api/potholes')
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById("imageList");
+            list.innerHTML = ''; // curăță
+            data.forEach(p => {
+                const div = document.createElement("div");
+                div.style.border = "1px solid #ccc";
+                div.style.padding = "5px";
+                div.style.marginBottom = "10px";
+                div.innerHTML = `
+                    <img src="${p.image}" style="width:100%; border-radius:4px;">
+                    <p style="margin:5px 0;"><b>${p.timestamp}</b></p>
+                    <button style="background:#d9534f; color:white; border:none; padding:6px 10px; cursor:pointer; border-radius:4px;" onclick="deleteImage('${p.image}')">Reject</button>
+                `;
+                list.appendChild(div);
+            });
+        });
+}
+
+function deleteImage(imagePath) {
+    fetch('/api/delete_image', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({image_path: imagePath})
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === "deleted") {
+            alert("Imagine ștearsă!");
+            loadImagesInSidebar(); // reîncarcă lista
+
+            // ⚡️ Șterge markerul corespunzător
+            const index = potholeMarkers.findIndex(m => m.imagePath === imagePath);
+            if (index !== -1) {
+                map.removeLayer(potholeMarkers[index].marker);
+                potholeMarkers.splice(index, 1); // șterge din listă
+            }
+        }
+    })
+    .catch(err => {
+        console.error("Eroare la ștergere:", err);
+    });
+}
