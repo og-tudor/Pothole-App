@@ -65,9 +65,14 @@ fetch('/api/potholes')
             const popupContent = `
                 <b>Groapă detectată</b><br>
                 <i>${p.timestamp}</i><br>
-                <img src="${p.image}" alt="Groapă" style="width:200px; margin-top:5px;">
+                <img src="${p.image}" alt="Groapă" 
+                    style="width:600px; margin-top:5px; cursor:pointer;">
             `;
-            marker.bindPopup(popupContent);
+            marker.bindPopup(popupContent, {
+                maxWidth: "auto",
+                className: "big-popup"
+            });
+            
         });
     })
     .catch(err => {

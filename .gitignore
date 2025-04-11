@@ -4,3 +4,8 @@
 /Database/images
 /Map/static/pothole_images
 /Database/potholes.db
+/Processing_Data/models
+/Processing_Data/pothole-env-export
+/Processing_Data/test_results
+/Processing_Data/test_images
+/Processing_Data/utils
