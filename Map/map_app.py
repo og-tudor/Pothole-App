@@ -53,6 +53,24 @@ def delete_image():
 
     return jsonify({"status": "deleted"})
 
+@app.route('/api/bumps')
+def get_bumps():
+    conn = sqlite3.connect(db_route)
+    cursor = conn.cursor()
+    cursor.execute("SELECT lat, lon, bump_severity FROM bumps")
+    rows = cursor.fetchall()
+    conn.close()
+
+    return jsonify([
+        {
+            "lat": row[0],
+            "lon": row[1],
+            "intensity": row[2]  # păstrăm "intensity" în JSON pentru JS
+        }
+        for row in rows
+    ])
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

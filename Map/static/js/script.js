@@ -6,7 +6,7 @@ let potholeMarkers = [];
 var map = L.map('map', {
     minZoom: 6,
     maxZoom: 20
-}).setView([44.428599, 26.052511], 14);
+}).setView([44.0738197, 28.6306563], 14);
 
 // CartoDB Dark Matter (Dark theme)
 var darkTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -82,6 +82,18 @@ fetch('/api/potholes')
         console.error("Eroare la încărcarea gropilor:", err);
     });
 
+// ✅ Încarcă denivelările (heatmap)
+fetch('/api/bumps')
+    .then(res => res.json())
+    .then(data => {
+        heatPoints = data.map(p => [p.lat, p.lon, Math.min(p.intensity * intensityMultiplier, 1.0)]);
+        heat.setLatLngs(heatPoints);
+    })
+    .catch(err => {
+        console.error("Eroare la încărcarea denivelărilor:", err);
+    });
+
+
 // Zoom control for heatmap and marker
 map.on('zoomend', () => {
     const zoomLevel = map.getZoom();
@@ -131,6 +143,16 @@ document.getElementById("overlay").addEventListener("click", () => {
     document.getElementById("overlay").style.display = "none";
 });
 
+function formatTimestamp(raw) {
+    const year = raw.substring(0, 4);
+    const month = raw.substring(4, 6);
+    const day = raw.substring(6, 8);
+    const hour = raw.substring(9, 11);
+    const minute = raw.substring(11, 13);
+    const second = raw.substring(13, 15);
+    return `${hour}:${minute}:${second} - ${day}:${month}:${year}`;
+}
+
 
 function loadImagesInSidebar() {
     fetch('/api/potholes')
@@ -143,11 +165,13 @@ function loadImagesInSidebar() {
                 div.style.border = "1px solid #ccc";
                 div.style.padding = "5px";
                 div.style.marginBottom = "10px";
+                const formattedTime = formatTimestamp(p.timestamp);
                 div.innerHTML = `
                     <img src="${p.image}" style="width:100%; border-radius:4px;">
-                    <p style="margin:5px 0;"><b>${p.timestamp}</b></p>
-                    <button style="background:#d9534f; color:white; border:none; padding:6px 10px; cursor:pointer; border-radius:4px;" onclick="deleteImage('${p.image}')">Reject</button>
-                `;
+                    <p style="margin:5px 0; font-size: 13px;"><b>🕒 ${formattedTime}</b></p>
+                    <p style="margin:0; font-size: 12px; color: #555;">📍 ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
+                    <button style="background:#d9534f; color:white; border:none; padding:6px 10px; cursor:pointer; border-radius:4px; margin-top:6px;" onclick="deleteImage('${p.image}')">Reject</button>
+                `;                
                 list.appendChild(div);
             });
         });
