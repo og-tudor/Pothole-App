@@ -27,6 +27,38 @@ def login_required(f):
     return decorated_function
 
 
+@app.route('/api/defects')
+@login_required
+def get_defects(user_id):
+    defect_tables = {
+        "pothole": "potholes",
+        "alligator_crack": "alligator_cracks",
+        "block_crack": "block_cracks",
+        "longitudinal_crack": "longitudinal_cracks",
+        "transverse_crack": "transverse_cracks",
+        "repair": "repairs",
+        "other_corruption": "other_corruptions"
+    }
+
+    conn = sqlite3.connect(db_route)
+    cursor = conn.cursor()
+    all_defects = []
+
+    for defect_type, table in defect_tables.items():
+        cursor.execute(f"SELECT lat, lon, image_path, timestamp FROM {table}")
+        rows = cursor.fetchall()
+        for row in rows:
+            all_defects.append({
+                "type": defect_type,
+                "lat": row[0],
+                "lon": row[1],
+                "image": row[2].replace("./static", "/static"),
+                "timestamp": row[3]
+            })
+
+    conn.close()
+    return jsonify(all_defects)
+
 
 
 # @app.route('/')
@@ -60,6 +92,12 @@ def register():
         return redirect('/login')
 
     return render_template('register.html')
+
+@app.route('/images')
+@login_required
+def images_view(user_id):
+    return render_template("images.html", title="Imagini")
+
 
 # === Pagina de login ===
 @app.route('/login', methods=['GET', 'POST'])

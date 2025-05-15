@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   let intensityMultiplier = 1.0;
   let heatPoints = [];
-  let potholeMarkers = [];
-  let bumpMarker = null;
+  let defectMarkers = [];
   let heat;
 
   const map = L.map("map", {
@@ -36,36 +35,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ✅ Heatmap initialization fix
-    function initializeHeatLayer() {
+  function initializeHeatLayer() {
     function waitForMapSize(attempt = 0) {
-        const size = map.getSize();
-        console.log(`🌀 Checking map size [attempt ${attempt}]:`, size);
-
-        if (size.x > 0 && size.y > 0) {
-        console.log("✅ Map size is valid:", size);
-
+      const size = map.getSize();
+      if (size.x > 0 && size.y > 0) {
         map.invalidateSize();
-
         heat = L.heatLayer([], {
-            radius: 14,
-            blur: 20,
-            maxZoom: 18
+          radius: 14,
+          blur: 20,
+          maxZoom: 18
         }).addTo(map);
-
         loadHeatData();
-        } else {
-        if (attempt < 20) {
-            requestAnimationFrame(() => waitForMapSize(attempt + 1));
-        } else {
-            console.error("❌ Map size still invalid after 20 attempts.");
-        }
-        }
+      } else if (attempt < 20) {
+        requestAnimationFrame(() => waitForMapSize(attempt + 1));
+      }
     }
-
     waitForMapSize();
-    }
-
+  }
 
   map.whenReady(initializeHeatLayer);
 
@@ -85,35 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     intensityMultiplier = parseFloat(e.target.value);
     document.getElementById("intensityValue").textContent = intensityMultiplier.toFixed(1) + "x";
     const scaledPoints = heatPoints.map(p => [p[0], p[1], Math.min(p[2] * intensityMultiplier, 1.0)]);
-    if (heat) {
-      heat.setLatLngs(scaledPoints);
-    }
+    if (heat) heat.setLatLngs(scaledPoints);
   });
 
-  // === Încarcă markerele cu imagini
-  fetch("/api/potholes")
-    .then(res => res.json())
-    .then(data => {
-      data.forEach(p => {
-        const marker = L.marker([p.lat, p.lon]).addTo(map);
-        const popupContent = `
-          <b>Groapă detectată</b><br>
-          <i>${p.timestamp}</i><br>
-          <img src="${p.image}" alt="Groapă" 
-              style="width:600px; margin-top:5px; cursor:pointer;">
-        `;
-        marker.bindPopup(popupContent, {
-          maxWidth: "auto",
-          className: "big-popup"
-        });
-        potholeMarkers.push({ marker, imagePath: p.image });
-      });
-    })
-    .catch(err => {
-      console.error("Eroare la încărcarea gropilor:", err);
-    });
-
-  // === Zoom heatmap
   map.on("zoomend", () => {
     const zoomLevel = map.getZoom();
     const scaledPoints = heatPoints.map(p => [p[0], p[1], Math.min(p[2] * intensityMultiplier, 1.0)]);
@@ -155,11 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const hour = raw.substring(9, 11);
     const minute = raw.substring(11, 13);
     const second = raw.substring(13, 15);
-    return `${hour}:${minute}:${second} - ${day}:${month}:${year}`;
+    return `${hour}:${minute}:${second} - ${day}/${month}/${year}`;
   }
 
   function loadImagesInSidebar() {
-    fetch("/api/potholes")
+    fetch("/api/defects")
       .then(res => res.json())
       .then(data => {
         const list = document.getElementById("imageList");
@@ -192,10 +152,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (res.status === "deleted") {
           alert("Imagine ștearsă!");
           loadImagesInSidebar();
-          const index = potholeMarkers.findIndex(m => m.imagePath === imagePath);
+          const index = defectMarkers.findIndex(m => m.imagePath === imagePath);
           if (index !== -1) {
-            map.removeLayer(potholeMarkers[index].marker);
-            potholeMarkers.splice(index, 1);
+            map.removeLayer(defectMarkers[index].marker);
+            defectMarkers.splice(index, 1);
           }
         }
       })
@@ -203,4 +163,63 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Eroare la ștergere:", err);
       });
   }
+
+  // === AwesomeMarkers integration
+  const markerColors = {
+    pothole: "red",
+    alligator_crack: "orange",
+    block_crack: "blue",
+    longitudinal_crack: "purple",
+    transverse_crack: "green",
+    repair: "darkred",
+    other_corruption: "cadetblue"
+  };
+
+  const markerIcons = {};
+
+  function getMarkerIcon(defectType) {
+    const fileMap = {
+      pothole: 'red',
+      alligator_crack: 'orange',
+      block_crack: 'blue',
+      longitudinal_crack: 'purple',
+      transverse_crack: 'green',
+      repair: 'yellow',
+      other_corruption: 'magenta'
+    };
+
+    const color = fileMap[defectType] || 'red'; // fallback
+    const path = `/static/icons/${color}-marker.png`;
+
+    return L.icon({
+      iconUrl: path,
+      iconSize: [30, 42],
+      iconAnchor: [15, 42],
+      popupAnchor: [0, -38]
+    });
+  }
+
+
+
+  fetch("/api/defects")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(def => {
+        if (!def.type || def.lat == null || def.lon == null) return;
+
+        const icon = getMarkerIcon(def.type);
+        const marker = L.marker([def.lat, def.lon], { icon }).addTo(map);
+
+        const popup = `
+          <b>${def.type.replace("_", " ").toUpperCase()}</b><br>
+          <i>${formatTimestamp(def.timestamp)}</i><br>
+          <img src="${def.image}" style="width: 600px; margin-top: 5px;">
+        `;
+        marker.bindPopup(popup);
+        defectMarkers.push({ marker, imagePath: def.image });
+      });
+    })
+    .catch(err => {
+      console.error("Eroare la încărcarea defectelor:", err);
+    });
 });

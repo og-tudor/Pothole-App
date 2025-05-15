@@ -141,3 +141,37 @@
     margin-top: 5px;
     width: 100%;
 }
+
+#defect-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-size: 14px;
+  max-width: 200px;
+}
+
+.legend-entry {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.legend-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 8px;
+  border: 1px solid #aaa;
+}
+
+/* Culoare markerelor Awesome */
+.bg-red       { background-color: #BE6262; }
+.bg-orange    { background-color: #F4E64D; }
+.bg-yellow    { background-color: #BEBE62; }
+.bg-blue      { background-color: #62B3BE; }
+.bg-purple    { background-color: #AD60FF; }
+.bg-green     { background-color: #78FF60; }
+.bg-magenta   { background-color: #E066C9; } /* personalizat */
+

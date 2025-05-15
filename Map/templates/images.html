@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/images.css') }}">
+{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Imagini detectate</h3>
+
+<div id="image-grid" class="image-grid"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/images.js') }}"></script>
+{% endblock %}
