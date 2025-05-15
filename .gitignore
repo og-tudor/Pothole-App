@@ -3,6 +3,7 @@
 /venv
 /Database/images
 /Map/static/pothole_images
+/Map/JWT_key
 /Database/potholes.db
 /Processing_Data/models
 /Processing_Data/pothole-env-export

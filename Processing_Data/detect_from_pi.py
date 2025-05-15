@@ -11,8 +11,8 @@ import warnings
 import math
 import sqlite3
 
-BUMP_THRESHOLD = 0.7
-POTHOLE_THRESHOLD = 0.3
+BUMP_THRESHOLD = 0.45
+POTHOLE_THRESHOLD = 0.7
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -58,7 +58,7 @@ def try_connect(ip_list, port, desc="conexiune"):
 def listen_sensor_data():
     global last_gps
     last_valid = {"lat": None, "lon": None}
-    fallback_coords = {"lat": 44.453944, "lon": 26.028722}
+    fallback_coords = {"lat": 44.444, "lon": 26.000}
     last_bump_time = 0
 
     while True:

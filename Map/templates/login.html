@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <h2>Autentificare</h2>
+    <form method="POST" class="auth-form">
+      <input name="username" type="text" placeholder="Username" required>
+      <input name="password" type="password" placeholder="Parolă" required>
+      <button type="submit">Login</button>
+    </form>
+    <p class="auth-footer">Nu ai cont? <a href="/register">Înregistrează-te</a></p>
+  </div>
+</body>
+</html>
