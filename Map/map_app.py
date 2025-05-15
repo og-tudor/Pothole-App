@@ -29,10 +29,10 @@ def login_required(f):
 
 
 
-@app.route('/')
-@login_required
-def map_view(user_id):
-    return render_template('index.html')
+# @app.route('/')
+# @login_required
+# def map_view(user_id):
+#     return render_template('index.html')
 
 
 
@@ -148,6 +148,17 @@ def delete_image(user_id):
     conn.close()
 
     return jsonify({"status": "deleted"})
+
+@app.route('/')
+@login_required
+def map_view(user_id):
+    return render_template("map_view.html", title="Hartă")
+
+@app.route('/statistics')
+@login_required
+def statistics_view(user_id):
+    return render_template("statistics.html", title="Statistici")
+
 
 @app.route('/api/bumps')
 @login_required
