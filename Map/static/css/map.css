@@ -1,3 +1,14 @@
+:root {
+  --color-black:   #120F1F;
+  --color-purple:  #514A73;
+  --color-mint:    #5FB68B;
+  --color-maroon:  #793243;
+  --color-lilac:   #B1A0DB;
+  --color-orange:  #BE7462;
+  --color-gold:    #CDA27E;
+  --color-cream:   #DFDCE8;
+}
+
 /* === Hartă principală === */
 #map-container {
   height: 85vh;
@@ -27,9 +38,10 @@
 /* === Legendă heatmap + slider === */
 #legend {
     position: absolute;
-    bottom: 30px;
+    bottom: 100px;
     left: 10px;
-    background: white;
+    /* color black */
+    background: var(--color-black);
     padding: 8px;
     border-radius: 8px;
     z-index: 1000;
@@ -38,33 +50,47 @@
 }
 
 #sliderContainer {
-    position: absolute;
-    bottom: 90px;
-    left: 10px;
-    background: white;
-    padding: 8px;
-    border-radius: 8px;
-    z-index: 1000;
-    font-size: 0.85rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  background: var(--color-black);
+  padding: 8px;
+  border-radius: 8px;
+  z-index: 1000;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start; /* text și slider aliniate la stânga */
 }
 
+
 #intensitySlider {
-    width: 150px;
+    width: 120px;
 }
 
 /* === Switch button style === */
 #switchStyleBtn {
     position: absolute;
+    background-color: transparent;
+    color: white;
+    border: 1px solid var(--color-lilac);
+    backdrop-filter: blur(4px);
     top: 10px;
-    left: 10px;
+    left: 60px;
     z-index: 1000;
 }
 
 #settingsBtn {
     position: absolute;
+    background-color: transparent;
+    color: white;
+    border: 1px solid var(--color-lilac);
+    backdrop-filter: blur(4px);
     top: 10px;
-    left: 140px; /* mută-l puțin de lângă primul */
+    left: 230px; /* mută-l puțin de lângă primul */
     z-index: 1000;
 }
 

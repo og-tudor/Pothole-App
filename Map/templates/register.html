@@ -15,6 +15,14 @@
       <button type="submit">Register</button>
     </form>
     <p class="auth-footer">Ai deja cont? <a href="/login">Autentifică-te</a></p>
+
+    {% if error %}
+    <br>
+    <div class="alert alert-danger mt-3" role="alert">
+    ❌ {{ error }}
+    </div>
+    {% endif %}
+
   </div>
 </body>
 </html>

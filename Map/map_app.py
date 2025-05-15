@@ -52,11 +52,13 @@ def register():
                         (username, email, password))
             conn.commit()
         except sqlite3.IntegrityError:
-            return "🛑 Utilizator sau email deja existent!"
+            # ✅ trimitem mesajul de eroare către HTML
+            return render_template('register.html', error="Utilizator sau email deja existent!")
         finally:
             conn.close()
 
         return redirect('/login')
+
     return render_template('register.html')
 
 # === Pagina de login ===
@@ -78,8 +80,11 @@ def login():
             resp.set_cookie('token', token, httponly=True, max_age=86400)
             return resp
 
-        return "🛑 Autentificare eșuată!"
+        # ✅ Trimit flag de eroare în template
+        return render_template('login.html', error=True)
+
     return render_template('login.html')
+
 
 # === Logout ===
 @app.route('/logout')

@@ -41,7 +41,7 @@ body {
 }
 
 .report-header h1 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: white;
   margin-bottom: 10px;
@@ -53,12 +53,13 @@ body {
 }
 
 .report-text {
-  margin: 10px 0;
-  font-weight: 600;
+    font-size: 1.5rem;
+  margin: 5px 0px;
+  font-weight: 800;
   cursor: pointer;
   color: white;
-  padding: 10px 15px;
-  border-radius: 6px;
+  padding: 5px 4px;
+  border-radius: 3px;
   transition: background 0.2s;
 }
 
@@ -74,7 +75,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 1rem;
   overflow-y: auto;
 }
 

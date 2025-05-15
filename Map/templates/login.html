@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body class="auth-body">
   <div class="auth-container">
@@ -14,6 +14,13 @@
       <button type="submit">Login</button>
     </form>
     <p class="auth-footer">Nu ai cont? <a href="/register">Înregistrează-te</a></p>
+
+    {% if error %}
+    <br>
+    <div class="alert alert-danger mt-3" role="alert">
+    ❌ Username sau parolă incorecte!
+    </div>
+    {% endif %}
   </div>
 </body>
 </html>
