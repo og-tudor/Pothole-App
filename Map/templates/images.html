@@ -7,7 +7,23 @@
 {% block content %}
 <h3 class="mb-3">Imagini detectate</h3>
 
+<div class="mb-3">
+  <label for="filter-type" class="form-label">Filtrează după tip:</label>
+  <select id="filter-type" class="form-select w-auto" onchange="loadImagesInGrid()">
+    <option value="all">Toate</option>
+    <option value="pothole">Pothole</option>
+    <option value="alligator_crack">Alligator Crack</option>
+    <option value="block_crack">Block Crack</option>
+    <option value="longitudinal_crack">Longitudinal Crack</option>
+    <option value="transverse_crack">Transverse Crack</option>
+    <option value="repair">Repair</option>
+    <option value="other_corruption">Other Corruption</option>
+  </select>
+  
+</div>
+
 <div id="image-grid" class="image-grid"></div>
+
 {% endblock %}
 
 {% block extra_scripts %}

@@ -26,6 +26,19 @@ def login_required(f):
         return f(user_id, *args, **kwargs)
     return decorated_function
 
+@login_required
+def get_location_name(lat, lon):
+    try:
+        response = requests.get(
+            "https://nominatim.openstreetmap.org/reverse",
+            params={"lat": lat, "lon": lon, "format": "json"},
+            headers={"User-Agent": "your-app-name"}
+        )
+        data = response.json()
+        return data.get("display_name", "")
+    except Exception as e:
+        print("Eroare geocodare inversă:", e)
+        return ""
 
 @app.route('/api/defects')
 @login_required

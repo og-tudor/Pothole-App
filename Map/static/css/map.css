@@ -24,16 +24,49 @@
   z-index: 0;
 }
 
-
-.leaflet-popup-content {
-    max-width: none !important;
-}
-
 .big-popup .leaflet-popup-content {
     width: auto;
     max-width: none;
     overflow-x: auto;
 }
+
+.leaflet-popup-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 5px auto; /* Centrare verticală */
+}
+
+
+.leaflet-popup-content-wrapper {
+  min-width: 600px; /* sau 500px, vezi ce arată bine */
+  max-width: none !important;
+  width: auto !important;
+}
+
+.leaflet-popup-content {
+  min-width: 600px;
+  width: auto !important;
+  max-width: none !important;
+  padding: 5px !important;
+  margin: 0 !important;
+}
+
+
+.leaflet-popup {
+  max-width: none !important;
+}
+
+
+.popup-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    padding: 5px;
+}
+
+
 
 /* === Legendă heatmap + slider === */
 #legend {

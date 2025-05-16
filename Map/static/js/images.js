@@ -9,33 +9,40 @@ function formatTimestamp(raw) {
 }
 
 function loadImagesInGrid() {
-  fetch("/api/potholes")
+  const selectedType = document.getElementById("filter-type").value;
+
+  fetch("/api/defects")
     .then(res => res.json())
     .then(data => {
       const grid = document.getElementById("image-grid");
       grid.innerHTML = "";
 
-      data.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "image-item";
+      data
+        .filter(p => selectedType === "all" || p.type === selectedType)
+        .forEach(p => {
+          const div = document.createElement("div");
+          div.className = "image-item";
 
-        const timestamp = formatTimestamp(p.timestamp);
-        const lat = p.lat.toFixed(6);
-        const lon = p.lon.toFixed(6);
+          const timestamp = formatTimestamp(p.timestamp);
+          const lat = p.lat.toFixed(6);
+          const lon = p.lon.toFixed(6);
+          const typeLabel = p.type.replace("_", " ");
 
-        div.innerHTML = `
-          <img src="${p.image}" alt="Gropă">
-          <p class="timestamp">🕒 ${timestamp}</p>
-          <p class="gps">📍 ${lat}, ${lon}</p>
-          <button class="btn btn-sm btn-danger mt-2 w-100" onclick="deleteImage('${p.image}')">
-            🗑️ Șterge imaginea
-          </button>
-        `;
+          div.innerHTML = `
+            <img src="${p.image}" alt="Defect">
+            <p class="timestamp">🕒 ${timestamp}</p>
+            <p class="gps">📍 ${lat}, ${lon}</p>
+            <p class="type">⚠️ ${typeLabel}</p>
+            <button class="btn btn-sm btn-danger mt-2 w-100" onclick="deleteImage('${p.image}')">
+              🗑️ Șterge imaginea
+            </button>
+          `;
 
-        grid.appendChild(div);
-      });
+          grid.appendChild(div);
+        });
     });
 }
+
 
 function deleteImage(imagePath) {
   fetch("/api/delete_image", {

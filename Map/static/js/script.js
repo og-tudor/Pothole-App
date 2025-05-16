@@ -241,7 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const popup = `
           <b>${def.type.replace("_", " ").toUpperCase()}</b><br>
           <i>${formatTimestamp(def.timestamp)}</i><br>
-          <img src="${def.image}" style="width: 600px; margin-top: 5px;">
+          <img src="${def.image}" class="popup-image">
+          <a href="${def.image}" target="_blank" style="display:block; text-align:center; margin-top:5px;">Deschide imaginea</a>
         `;
         marker.bindPopup(popup);
         defectMarkers.push({ marker, imagePath: def.image });
