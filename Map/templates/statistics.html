@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Dashboard bubble zone -->
+  <div class="row mb-4">
+    <!-- Pie chart: distribution by defect type -->
+    <div class="col-12 col-md-6 col-lg-4 mb-3">
+      <div class="p-3 rounded bg-medium-purple text-white h-100">
+        <h5 class="text-center">Defect Type Distribution</h5>
+        <div id="defect-type-pie" class="chart-container"></div>
+      </div>
+    </div>
+
+    <!-- Bubble for another chart (placeholder) -->
+    <div class="col-12 col-md-6 col-lg-4 mb-3">
+      <div class="p-3 rounded bg-light-purple text-white h-100 d-flex align-items-center justify-content-center">
+        <p class="text-center">More charts soon...</p>
+      </div>
+    </div>
+
+    <!-- Bigger bubble -->
+    <div class="col-12 col-lg-4 mb-3">
+      <div class="p-3 rounded bg-dark text-white h-100 d-flex align-items-center justify-content-center">
+        <p class="text-center">Large chart zone</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="{{ url_for('static', filename='js/statistics.js') }}"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+{% endblock %}
