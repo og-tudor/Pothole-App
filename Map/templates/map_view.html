@@ -11,7 +11,7 @@
   <!-- Harta propriu-zisă -->
   <div id="map" class="flex-grow-1"></div>
 
-  <div id="defect-legend" class="leaflet-control legend bg-white rounded shadow p-2">
+  <div id="defect-legend" class="leaflet-control legend rounded shadow p-2">
     <h6 class="mb-2">🗺️ Tipuri defecte</h6>
     <div class="legend-entry"><span class="legend-icon bg-red"></span> Pothole</div>
     <div class="legend-entry"><span class="legend-icon bg-orange"></span> Alligator crack</div>
@@ -27,10 +27,6 @@
   <!-- Butoane și controale poziționate absolut -->
   <button id="switchStyleBtn" class="btn btn-light">
       <i class="bi bi-globe"></i> Schimbă stilul
-  </button>
-
-  <button id="settingsBtn" class="btn btn-outline-light">
-      <i class="bi bi-gear"></i> Setări
   </button>
 
   <div id="legend" class="shadow">
@@ -60,5 +56,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}

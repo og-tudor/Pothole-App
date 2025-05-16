@@ -1,4 +1,4 @@
-:root {
+/* :root {
   --color-black:   #120F1F;
   --color-purple:  #514A73;
   --color-mint:    #5FB68B;
@@ -7,7 +7,7 @@
   --color-orange:  #BE7462;
   --color-gold:    #CDA27E;
   --color-cream:   #DFDCE8;
-}
+} */
 
 /* === Hartă principală === */
 #map-container {
@@ -75,7 +75,7 @@
 #switchStyleBtn {
     position: absolute;
     background-color: transparent;
-    color: white;
+    color: var(--color-cream);
     border: 1px solid var(--color-lilac);
     backdrop-filter: blur(4px);
     top: 10px;
@@ -83,16 +83,17 @@
     z-index: 1000;
 }
 
-#settingsBtn {
+/* #settingsBtn {
     position: absolute;
     background-color: transparent;
     color: white;
     border: 1px solid var(--color-lilac);
     backdrop-filter: blur(4px);
     top: 10px;
-    left: 230px; /* mută-l puțin de lângă primul */
+    left: 230px;
     z-index: 1000;
-}
+} 
+*/
 
 /* === Sidebar imagini detectate === */
 #sidebar {
@@ -143,6 +144,7 @@
 }
 
 #defect-legend {
+  background: var(--color-black);
   position: absolute;
   bottom: 20px;
   right: 20px;
@@ -173,5 +175,5 @@
 .bg-blue      { background-color: #62B3BE; }
 .bg-purple    { background-color: #AD60FF; }
 .bg-green     { background-color: #78FF60; }
-.bg-magenta   { background-color: #E066C9; } /* personalizat */
+.bg-magenta   { background-color: #E066C9; }
 

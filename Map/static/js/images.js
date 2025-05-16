@@ -56,5 +56,8 @@ function deleteImage(imagePath) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (typeof initializeThemeSwitch === 'function') {
+    initializeThemeSwitch();
+  }
   loadImagesInGrid();
 });

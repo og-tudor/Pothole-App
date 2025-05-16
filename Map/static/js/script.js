@@ -1,19 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  if (typeof initializeThemeSwitch === 'function') {
+    initializeThemeSwitch();
+  }
+
+  // Execută doar dacă funcția există (e definită în images.js)
+  if (typeof loadImagesInGrid === 'function') {
+    loadImagesInGrid();
+  }
+
+  // let currentBaseLayer = baseLayer;
   let intensityMultiplier = 1.0;
   let heatPoints = [];
   let defectMarkers = [];
   let heat;
 
-  const map = L.map("map", {
-    minZoom: 6,
-    maxZoom: 20
-  }).setView([44.428500, 26.052373], 12);
+
+  let currentStyle = "stadia";
+
+
+  if (typeof initializeThemeSwitch === 'function') {
+    initializeThemeSwitch();
+  }
+
+  if (typeof loadImagesInGrid === 'function') {
+    loadImagesInGrid();
+  }
+
+  // === Tile layers (declare them first)
+  const lightTheme = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap contributors & CartoDB",
+    subdomains: "abcd",
+    maxZoom: 19
+  });
 
   const darkTheme = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap contributors & CartoDB",
     subdomains: "abcd",
     maxZoom: 19
-  }).addTo(map);
+  });
 
   const satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
     attribution: "Tiles © Esri, USGS, NASA",
@@ -21,19 +46,35 @@ document.addEventListener("DOMContentLoaded", () => {
     maxNativeZoom: 18
   });
 
-  let currentStyle = "stadia";
+  const isDark = localStorage.getItem("darkModeEnabled") !== "false";
+  let currentBaseLayer = isDark ? darkTheme : lightTheme;
+
+  // === Inițializare hartă
+  const map = L.map("map", {
+    minZoom: 6,
+    maxZoom: 20,
+    layers: [currentBaseLayer]
+  }).setView([44.428500, 26.052373], 12);
+
+  window.addEventListener("themeChanged", (e) => {
+    const isDark = e.detail.dark;
+    map.removeLayer(currentBaseLayer);
+    currentBaseLayer = isDark ? darkTheme : lightTheme;
+    currentBaseLayer.addTo(map);
+  });
 
   document.getElementById("switchStyleBtn").addEventListener("click", () => {
     if (currentStyle === "stadia") {
-      map.removeLayer(darkTheme);
+      map.removeLayer(currentBaseLayer);
       satellite.addTo(map);
       currentStyle = "esri";
     } else {
       map.removeLayer(satellite);
-      darkTheme.addTo(map);
+      currentBaseLayer.addTo(map);
       currentStyle = "stadia";
     }
   });
+
 
   function initializeHeatLayer() {
     function waitForMapSize(attempt = 0) {
@@ -89,19 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // === Sidebar toggle
-  document.getElementById("settingsBtn").addEventListener("click", () => {
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    if (sidebar.style.left === "0px") {
-      sidebar.style.left = "-320px";
-      overlay.style.display = "none";
-    } else {
-      sidebar.style.left = "0px";
-      overlay.style.display = "block";
-      loadImagesInSidebar();
-    }
-  });
 
   document.getElementById("overlay").addEventListener("click", () => {
     document.getElementById("sidebar").style.left = "-320px";

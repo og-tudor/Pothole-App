@@ -20,7 +20,7 @@
   width: 100%;
   height: 160px;
   object-fit: contain;         /* ✅ se va încadra fără tăiere/stretching */
-  background-color: #222;      /* opțional: fundal de contrast */
+  background-color: var(--color-black);
   border-radius: 6px;
 }
 

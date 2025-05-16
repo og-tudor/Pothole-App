@@ -46,6 +46,10 @@
             </a>
         </div>
         <div class="mt-auto">
+            <button class="btn btn-secondary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                <i class="bi bi-gear"></i> Setări
+            </button>
+
             <a href="{{ url_for('logout') }}" class="btn btn-danger w-100 mt-3">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
@@ -64,7 +68,32 @@
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
     {% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
     {% endblock %}
 </body>
+
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title" id="settingsModalLabel">Setări</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+      </div>
+      <div class="modal-body">
+        <p>Aici poți adăuga opțiuni de configurare (ex: teme, notificări, limbi, etc.).</p>
+        <!-- Ex: Switch pentru temă întunecată -->
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+          <label class="form-check-label" for="darkModeSwitch">Mod întunecat</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Închide</button>
+        <button type="button" class="btn btn-primary" id="saveSettingsBtn">Salvează</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </html>

@@ -10,6 +10,55 @@
   --color-cream:   #DFDCE8;
 }
 
+/* LIGHT THEME */
+.light-theme {
+  --color-black:   #F9F7F3;
+  --color-purple:  #B8CEE8;
+  --color-mint:    #3D3E45;
+  --color-maroon:  #761716;
+  --color-orange:  #CE623B;
+  --color-cream:   #25262C;
+  --fg-main:       #25262C;
+  --bg-main:       #F9F7F3;
+  background-color: var(--bg-main);
+  color: var(--fg-main);
+}
+
+.light-theme .report-sidebar {
+  background-color: #c7a68c;
+}
+
+.light-theme .report-text {
+  color: var(--fg-main);
+}
+
+.light-theme .report-text:hover,
+.light-theme .report-text.active {
+  background: #DCDCDC;
+  color: black;
+}
+
+/* DARK THEME */
+.dark-theme {
+  background: var(--color-black);
+  color: var(--color-cream);
+}
+
+.dark-theme .report-sidebar {
+  background: #292441;
+}
+
+.dark-theme .report-text {
+  color: white;
+}
+
+.dark-theme .report-text:hover,
+.dark-theme .report-text.active {
+  background: #564b72;
+}
+
+
+
 /* === Reset + font general === */
 * {
   margin: 0;
@@ -43,7 +92,7 @@ body {
 .report-header h1 {
   font-size: 2rem;
   font-weight: 800;
-  color: white;
+  color: var(--color-cream);
   margin-bottom: 10px;
 }
 
