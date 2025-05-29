@@ -103,6 +103,19 @@ CREATE TABLE IF NOT EXISTS other_corruptions (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL,
+    problem_type TEXT NOT NULL,
+    image_path TEXT NOT NULL,
+    description TEXT,
+    lat REAL,
+    lon REAL,
+    address TEXT
+)
+""")
+
 conn.commit()
 conn.close()
 print("[✅] Tabelele au fost create cu succes în baza de date existentă!")

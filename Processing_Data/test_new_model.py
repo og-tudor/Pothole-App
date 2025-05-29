@@ -37,6 +37,15 @@ model.model.names = {
     6: "transverse_crack"
 }
 
+class_thresholds = {
+    0: 0.13,   # pothole
+    1: 0.3,   # alligator crack
+    3: 0.6,   # longitudinal crack
+    6: 0.4    # transverse crack
+}
+disabled_classes = {2, 4, 5}  # Excludem 'other corruption' și 'repair'
+
+
 print("Clase în model:")
 for i, name in enumerate(model.names):
     print(f"{i}: {name}")
@@ -180,9 +189,16 @@ def receive_video():
                     cls = int(box.cls[0])
                     label = model.names.get(cls, f"cls_{cls}").lower().replace(" ", "_")
                     print(f"[📦] box[{i}] → cls: {cls} ({label}), conf: {conf:.2f}")
-
-                    if conf < POTHOLE_THRESHOLD:
+                    
+                    if cls in disabled_classes:
                         continue
+                    # Verificare threshold per clasa
+                    threshold = class_thresholds.get(cls, POTHOLE_THRESHOLD)
+                    if conf < threshold:
+                        # print(f"[⬇️] Confidență sub prag pentru {label}: {conf:.2f} < {threshold:.2f}")
+                        continue
+                    # if conf < POTHOLE_THRESHOLD:
+                    #     continue
 
                     if label not in class_to_table:
                         print(f"[ℹ️] Etichetă necunoscută: {label}")

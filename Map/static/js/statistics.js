@@ -14,7 +14,7 @@ function drawDefectPieChart(data) {
     labels: labels,
     type: 'pie',
     marker: {
-      colors: ['#F2C94C', '#BE7462', '#514A73', '#6C757D', '#9B5F50', '#2D9CDB', '#27AE60']
+      colors: ['#F2C94C', '#BE7462', '#6C757D', '#9B5F50', '#2D9CDB', '#27AE60']
     }
   }];
 

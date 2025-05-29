@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  #map { height: 60vh; }
+  #report-form-container { padding: 20px; }
+  .leaflet-container { cursor: crosshair; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-3">📍 Raportează o Problemă</h2>
+  <div id="map" class="rounded shadow mb-4"></div>
+
+  <div id="report-form-container" class="shadow p-4 bg-light rounded">
+    <form id="reportForm" action="{{ url_for('submit_report') }}" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="lat" id="lat">
+      <input type="hidden" name="lon" id="lon">
+
+      <div class="mb-3">
+        <label for="problem_type" class="form-label">Tipul problemei:</label>
+        <select name="problem_type" id="problem_type" class="form-select" required>
+          <option value="pothole">Groapă</option>
+          <option value="alligator_crack">Fisuri în formă de piele de aligator</option>
+          <option value="block_crack">Fisuri bloc</option>
+          <option value="longitudinal_crack">Fisuri longitudinale</option>
+          <option value="transverse_crack">Fisuri transversale</option>
+          <option value="repair">Reparație</option>
+          <option value="other_corruption">Altă degradare</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="image" class="form-label">Încarcă o poză:</label>
+        <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="address" class="form-label">Adresă (precompletată, dar editabilă):</label>
+        <input type="text" id="address" name="address" class="form-control" placeholder="Adresă completă..." required>
+      </div>
+
+      <div class="mb-3">
+        <label for="description" class="form-label">Descriere (opțional):</label>
+        <textarea name="description" class="form-control" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Trimite raportul</button>
+    </form>
+  </div>
+  <hr class="my-5">
+  <h4 class="mb-3">📄 Rapoarte trimise anterior</h4>
+
+  <div id="reports-list" class="mt-4">
+    <!-- card-urile raporturilor vor fi inserate aici de JavaScript -->
+  </div>
+
+
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script src="{{ url_for('static', filename='js/report_problem.js') }}"></script>
+{% endblock %}
