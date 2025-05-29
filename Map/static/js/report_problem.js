@@ -55,6 +55,10 @@ function loadReportsList() {
       data.forEach(report => {
         const div = document.createElement("div");
         div.className = "card mb-3 shadow-sm";
+        if (report.no_detection) {
+          div.style.backgroundColor = "#7c0a02"; // grena închis
+          div.style.color = "white";
+        }
 
         const timestamp = formatTimestamp(report.timestamp);
         const typeLabel = report.problem_type.replace("_", " ");
@@ -67,7 +71,7 @@ function loadReportsList() {
               data-bs-target="#report-${report.id}"
               aria-expanded="false"
               aria-controls="report-${report.id}">
-            <div><b>⚠️ ${typeLabel}</b> — 🕒 ${timestamp}</div>
+            <div><b>⚠️ ${typeLabel}</b> — 🕒 ${timestamp} ${report.no_detection ? '<span class="badge bg-warning text-dark">⚠️ fără detecții</span>' : ''}</div>
             <div class="text-muted small">Click pentru detalii</div>
           </div>
           <div id="report-${report.id}" class="collapse">
@@ -115,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeThemeSwitch();
   }
   loadReportsList();
-  
+
   // ✅ Afișează alert dacă parametrul `submitted=1` e prezent în URL
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get("submitted") === "1") {

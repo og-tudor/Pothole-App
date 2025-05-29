@@ -10,6 +10,10 @@ import datetime
 import bcrypt
 from functools import wraps
 import time
+import cv2
+import numpy as np
+import io
+
 
 app = Flask(__name__)
 db_route = '../Database/potholes.db'
@@ -123,7 +127,8 @@ def get_reports(user_id):
             "description": row[4],
             "lat": row[5],
             "lon": row[6],
-            "address": row[7] or ""
+            "address": row[7] or "",
+            "no_detection": "Nicio detecție găsită" in (row[4] or "")
         }
         for row in rows
     ])
@@ -138,32 +143,25 @@ def submit_report():
         address = request.form.get("address", "")
         problem_type = request.form.get("problem_type", "")
         description = request.form.get("description", "")
-        image = request.files["image"]
+        image_file = request.files["image"]
 
-        filename = secure_filename(image.filename)
-        upload_folder = os.path.join("static", "uploads")
-        os.makedirs(upload_folder, exist_ok=True)
-        image_path = os.path.join(upload_folder, filename)
-        image.save(image_path)
+        # Citește imaginea în memorie
+        in_memory_file = io.BytesIO(image_file.read())
+        file_bytes = np.asarray(bytearray(in_memory_file.read()), dtype=np.uint8)
+        image_np = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        # Salvează imediat raportul
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        conn = sqlite3.connect("../Database/potholes.db")
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO reports (timestamp, problem_type, image_path, description, lat, lon, address)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (timestamp, problem_type, f"./static/uploads/{filename}", description, lat, lon, address))
-        conn.commit()
-        conn.close()
+        # ✅ Rulează procesarea într-un thread separat (asincron)
+        threading.Thread(
+            target=analyze_and_save,
+            args=(image_np, lat, lon, problem_type, description, address),
+            daemon=True
+        ).start()
 
-        # Rulează analiza într-un thread separat
-        threading.Thread(target=analyze_and_save, args=(image_path, lat, lon), daemon=True).start()
-
+        # ✅ Trimite imediat confirmarea și reîncarcă pagina
         return redirect(url_for("report_problem_view", submitted=1))
 
-
     return render_template("report.html")
+
 # === Pagina de înregistrare ===
 @app.route('/register', methods=['GET', 'POST'])
 def register():

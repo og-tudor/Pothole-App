@@ -39,9 +39,11 @@ CLASS_TABLE = {
 }
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-def analyze_and_save(image_path, lat, lon):
-    image = cv2.imread(image_path)
-    results = MODEL(image, verbose=False)[0]
+def analyze_and_save(image_np, lat, lon, problem_type, description, address):
+    if image_np is None or image_np.size == 0:
+        print("[EROARE] Imaginea nu a putut fi procesată.")
+        return []
+    results = MODEL(image_np, verbose=False)[0]
     detections = results.boxes
 
     saved = []
@@ -50,6 +52,7 @@ def analyze_and_save(image_path, lat, lon):
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     new_filename = f"annotated_{timestamp}.jpg"
     final_path = os.path.join(IMAGE_DIR, new_filename)
+    yolo_img_path = f"./static/pothole_images/{new_filename}"
     annotated_saved = False
 
     conn = sqlite3.connect(DB_PATH)
@@ -80,10 +83,28 @@ def analyze_and_save(image_path, lat, lon):
         cur.execute(f"""
             INSERT INTO {table} (timestamp, lat, lon, image_path)
             VALUES (?, ?, ?, ?)
-        """, (timestamp, lat, lon, f"./static/pothole_images/{new_filename}"))
+        """, (timestamp, lat, lon, yolo_img_path))
 
         saved.append({"label": label, "confidence": conf, "path": final_path})
         labels_detected.add(label)
+
+    # Salvează imaginea originală dacă nu s-a detectat nimic
+    if not saved:
+        cv2.imwrite(final_path, image_np)  # fără adnotări
+
+    # Salvează raportul o singură dată, cu mențiune dacă nu sunt detecții
+    cur.execute("""
+        INSERT INTO reports (timestamp, problem_type, image_path, description, lat, lon, address)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        timestamp,
+        problem_type,
+        yolo_img_path,
+        description + (" (Nicio detecție găsită)" if not saved else ""),
+        lat,
+        lon,
+        address
+    ))
 
     conn.commit()
     conn.close()
