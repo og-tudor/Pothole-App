@@ -11,8 +11,8 @@ import math
 import sqlite3
 from ultralytics import YOLO  # 🔄 import nou pentru YOLOv8/11
 
-BUMP_THRESHOLD = 0.45
-POTHOLE_THRESHOLD = 0.2
+BUMP_THRESHOLD = 1.8
+POTHOLE_THRESHOLD = 2.8
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -23,27 +23,52 @@ os.makedirs(FLASK_IMAGE_DIR, exist_ok=True)
 SAVE_DIR = "./test_results"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-# 🧬 YOLOv8/v11
-model = YOLO("best.pt")  # 🔄 folosește YOLOv8 sau v11
+# === Determină run_id ===
+def get_next_run_id(db_path):
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+
+    tables_with_runid = [
+        "potholes", "alligator_cracks", "longitudinal_cracks",
+        "transverse_cracks", "manholes", "bumps"
+    ]
+    max_run_id = 0
+    for table in tables_with_runid:
+        try:
+            cur.execute(f"SELECT MAX(run_id) FROM {table} WHERE run_id IS NOT NULL")
+            result = cur.fetchone()
+            if result and result[0] is not None:
+                max_run_id = max(max_run_id, result[0])
+        except sqlite3.OperationalError as e:
+            print(f"[WARN] Tabela {table} nu are run_id sau nu e creată încă.")
+
+    conn.close()
+    return max_run_id + 1
+
+RUN_ID = get_next_run_id(FLASK_DB_PATH)
+print(f"[🆕] run_id curent: {RUN_ID}")
+
+
+# 🧬 YOLOv11
+model = YOLO("best_5_labels.pt")
 model.conf = POTHOLE_THRESHOLD
 
 model.model.names = {
     0: "pothole",
     1: "alligator_crack",
-    2: "block_crack",
-    3: "longitudinal_crack",
-    4: "other_corruption",
-    5: "repair",
-    6: "transverse_crack"
+    2: "longitudinal_crack",
+    3: "transverse_crack",
+    4: "manhole"
 }
 
 class_thresholds = {
-    0: 0.13,   # pothole
-    1: 0.3,   # alligator crack
-    3: 0.6,   # longitudinal crack
-    6: 0.4    # transverse crack
+    0: 0.72,   # pothole
+    1: 0.6,   # alligator crack
+    2: 0.72,   # longitudinal crack
+    3: 0.6,    # transverse crack
+    4: 0.6     # manhole
 }
-disabled_classes = {2, 4, 5}  # Excludem 'other corruption' și 'repair'
+disabled_classes = {}
 
 
 print("Clase în model:")
@@ -112,13 +137,15 @@ def listen_sensor_data():
                         conn = sqlite3.connect(FLASK_DB_PATH)
                         cur = conn.cursor()
                         cur.execute("""
-                            INSERT INTO bumps (timestamp, lat, lon, bump_severity)
-                            VALUES (?, ?, ?, ?)
+                            INSERT INTO bumps (timestamp, lat, lon, bump_severity, conf, run_id)
+                            VALUES (?, ?, ?, ?, ?, ?)
                         """, (
                             timestamp,
                             last_gps["lat"],
                             last_gps["lon"],
-                            denivelare
+                            denivelare,
+                            BUMP_THRESHOLD,
+                            RUN_ID
                         ))
                         conn.commit()
                         conn.close()
@@ -143,11 +170,9 @@ def receive_video():
     class_to_table = {
         "pothole": "potholes",
         "alligator_crack": "alligator_cracks",
-        "block_crack": "block_cracks",
         "longitudinal_crack": "longitudinal_cracks",
         "transverse_crack": "transverse_cracks",
-        "repair": "repairs",
-        "other_corruption": "other_corruptions"
+        "manhole": "manholes"
     }
 
     while True:
@@ -242,11 +267,12 @@ def receive_video():
                         conn = sqlite3.connect(FLASK_DB_PATH)
                         cur = conn.cursor()
                         cur.execute(f"""
-                            INSERT INTO {class_to_table[label]} (timestamp, lat, lon, image_path)
-                            VALUES (?, ?, ?, ?)
+                            INSERT INTO {class_to_table[label]} (timestamp, lat, lon, image_path, conf, run_id)
+                            VALUES (?, ?, ?, ?, ?, ?)
                         """, (
-                            timestamp, lat, lon, f"./static/pothole_images/{img_name}"
+                            timestamp, lat, lon, f"./static/pothole_images/{img_name}", conf, RUN_ID
                         ))
+
                         conn.commit()
                         conn.close()
                         print(f"[✅] {label} salvat în DB @ ({lat}, {lon})")

@@ -5,6 +5,21 @@ const tile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+
+function updateNoDetectionCardColors() {
+  const isDark = document.body.classList.contains("dark-theme");
+  document.querySelectorAll(".no-detection-report").forEach(card => {
+    card.style.backgroundColor = isDark ? "#7c0a02" : "#cf8a91";
+    card.style.color = isDark ? "white" : "black"; // sau altă culoare, dacă preferi
+  });
+}
+
+window.addEventListener("themeChanged", () => {
+  updateNoDetectionCardColors();
+});
+
+
+
 map.on('click', function(e) {
   const { lat, lng } = e.latlng;
 
@@ -56,9 +71,13 @@ function loadReportsList() {
         const div = document.createElement("div");
         div.className = "card mb-3 shadow-sm";
         if (report.no_detection) {
-          div.style.backgroundColor = "#7c0a02"; // grena închis
-          div.style.color = "white";
+          div.classList.add("no-detection-report");
+          const isDark = document.body.classList.contains("dark-theme");
+          div.style.backgroundColor = isDark ? "#7c0a02" : "#985F6F";
+          div.style.color = isDark ? "white" : "black";
         }
+
+
 
         const timestamp = formatTimestamp(report.timestamp);
         const typeLabel = report.problem_type.replace("_", " ");
@@ -71,15 +90,16 @@ function loadReportsList() {
               data-bs-target="#report-${report.id}"
               aria-expanded="false"
               aria-controls="report-${report.id}">
-            <div><b>⚠️ ${typeLabel}</b> — 🕒 ${timestamp} ${report.no_detection ? '<span class="badge bg-warning text-dark">⚠️ fără detecții</span>' : ''}</div>
+            <div><b><i class="bi bi-exclamation-triangle-fill"></i> ${typeLabel}</b> — <i class="bi bi-clock-fill"></i> ${timestamp} ${report.no_detection ? '<span class="badge bg-warning text-dark">Fără detecții</span>' : ''}</div>
             <div class="text-muted small">Click pentru detalii</div>
           </div>
           <div id="report-${report.id}" class="collapse">
             <div class="card-body">
-              <p><b>📍</b> ${report.address || "Adresă necunoscută"}</p>
+              <p><b><i class="bi bi-pin-fill"></i></b> ${report.address || "Adresă necunoscută"}</p>
               <p><i>${report.description || "Fără descriere"}</i></p>
               <img src="${imgSrc}" class="img-fluid mb-2 rounded" style="max-height:150px;"><br>
-              <button class="btn btn-sm btn-danger" onclick="deleteReport(${report.id}, '${report.image_path}')">🗑️ Șterge</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteReport(${report.id}, '${report.image_path}')"><i class="bi bi-trash-fill"></i> Șterge</button>
+
             </div>
           </div>
         `;
@@ -120,9 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   loadReportsList();
 
-  // ✅ Afișează alert dacă parametrul `submitted=1` e prezent în URL
+  // Afișează alert dacă parametrul `submitted=1` e prezent în URL
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get("submitted") === "1") {
-    alert("✅ Raportul a fost trimis cu succes! Va fi analizat în câteva secunde.");
+    alert("Raportul a fost trimis cu succes! Va fi analizat în câteva secunde.");
   }
 });

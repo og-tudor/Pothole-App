@@ -6,7 +6,6 @@ import sqlite3
 import os
 import jwt
 import datetime
-# from werkzeug.security import generate_password_hash, check_password_hash
 import bcrypt
 from functools import wraps
 import time
@@ -22,10 +21,6 @@ image_dir = 'static/pothole_images'
 with open('./JWT_key', 'r') as f:
     JWT_SECRET = f.read().strip()
 
-# === Citim cheia secretă pentru Flask din fișier ===
-with open('flask_secret_key', 'r') as f:
-    app.secret_key = f.read().strip()
-
 # === Middleware pentru autentificare ===
 def login_required(f):
     @wraps(f)
@@ -37,31 +32,14 @@ def login_required(f):
         return f(user_id, *args, **kwargs)
     return decorated_function
 
-@login_required
-def get_location_name(lat, lon):
-    try:
-        response = requests.get(
-            "https://nominatim.openstreetmap.org/reverse",
-            params={"lat": lat, "lon": lon, "format": "json"},
-            headers={"User-Agent": "your-app-name"}
-        )
-        data = response.json()
-        return data.get("display_name", "")
-    except Exception as e:
-        print("Eroare geocodare inversă:", e)
-        return ""
-
 @app.route('/api/defects')
 @login_required
 def get_defects(user_id):
     defect_tables = {
         "pothole": "potholes",
         "alligator_crack": "alligator_cracks",
-        "block_crack": "block_cracks",
         "longitudinal_crack": "longitudinal_cracks",
         "transverse_crack": "transverse_cracks",
-        "repair": "repairs",
-        "other_corruption": "other_corruptions"
     }
 
     conn = sqlite3.connect(db_route)
@@ -93,20 +71,44 @@ def delete_report(user_id):
     if not report_id or not image_path:
         return jsonify({"error": "Date lipsă"}), 400
 
-    full_image_path = os.path.abspath(os.path.join('static', image_path.replace("/static/", "")))
+    # Normalizează calea
+    if image_path.startswith("./"):
+        image_path = image_path[2:]
+    full_image_path = os.path.abspath(image_path)
+
+    # Șterge fișierul imagine de pe disc
     try:
         if os.path.exists(full_image_path):
             os.remove(full_image_path)
+        else:
+            print(f"[WARN] Fișierul nu există: {full_image_path}")
     except Exception as e:
-        print(f"Eroare la ștergerea imaginii: {e}")
+        print(f"[EROARE] La ștergerea imaginii: {e}")
+
+    # Șterge raportul și intrările din tabelele de defecte
+    image_path_db = "./" + image_path if not image_path.startswith("./") else image_path
+    defect_tables = [
+        "potholes",
+        "alligator_cracks",
+        "longitudinal_cracks",
+        "transverse_cracks",
+    ]
 
     conn = sqlite3.connect(db_route)
     cur = conn.cursor()
+
+    # 1. Șterge raportul
     cur.execute("DELETE FROM reports WHERE id = ?", (report_id,))
+
+    # 2. Șterge orice rând cu acea imagine din tabelele de defecte
+    for table in defect_tables:
+        cur.execute(f"DELETE FROM {table} WHERE image_path = ?", (image_path_db,))
+
     conn.commit()
     conn.close()
 
     return jsonify({"status": "deleted"})
+
 
 
 @app.route("/api/reports")
@@ -150,14 +152,14 @@ def submit_report():
         file_bytes = np.asarray(bytearray(in_memory_file.read()), dtype=np.uint8)
         image_np = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        # ✅ Rulează procesarea într-un thread separat (asincron)
+        # Rulează procesarea într-un thread separat (asincron)
         threading.Thread(
             target=analyze_and_save,
             args=(image_np, lat, lon, problem_type, description, address),
             daemon=True
         ).start()
 
-        # ✅ Trimite imediat confirmarea și reîncarcă pagina
+        # Trimite imediat confirmarea și reîncarcă pagina
         return redirect(url_for("report_problem_view", submitted=1))
 
     return render_template("report.html")
@@ -178,7 +180,7 @@ def register():
                         (username, email, password))
             conn.commit()
         except sqlite3.IntegrityError:
-            # ✅ trimitem mesajul de eroare către HTML
+            # trimitem mesajul de eroare către HTML
             return render_template('register.html', error="Utilizator sau email deja existent!")
         finally:
             conn.close()
@@ -212,7 +214,7 @@ def login():
             resp.set_cookie('token', token, httponly=True, max_age=86400)
             return resp
 
-        # ✅ Trimit flag de eroare în template
+        # Trimit flag de eroare în template
         return render_template('login.html', error=True)
 
     return render_template('login.html')
@@ -241,24 +243,6 @@ def verify_token(token):
         return None
 
 
-@app.route('/api/potholes')
-@login_required
-def get_potholes(user_id):
-    conn = sqlite3.connect(db_route)
-    cursor = conn.cursor()
-    cursor.execute("SELECT lat, lon, image_path, timestamp FROM potholes")
-    rows = cursor.fetchall()
-    conn.close()
-    return jsonify([
-        {
-            "lat": row[0],
-            "lon": row[1],
-            "image": row[2].replace("./static", "/static"),
-            "timestamp": row[3]
-        }
-        for row in rows
-    ])
-
 @app.route('/api/delete_image', methods=['POST'])
 @login_required
 def delete_image(user_id):
@@ -282,11 +266,8 @@ def delete_image(user_id):
     defect_tables = [
         "potholes",
         "alligator_cracks",
-        "block_cracks",
         "longitudinal_cracks",
         "transverse_cracks",
-        "repairs",
-        "other_corruptions"
     ]
 
     conn = sqlite3.connect(db_route)
@@ -316,6 +297,26 @@ def report_problem_view(user_id):
     return render_template("report_problem.html", title="Raportează o problemă")
 
 
+@app.route("/api/reports/count")
+def reports_count():
+    conn = sqlite3.connect(db_route)
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM reports")
+    count = c.fetchone()[0]
+    conn.close()
+    return jsonify({"count": count})
+
+@app.route("/api/users/count")
+def users_count():
+    conn = sqlite3.connect(db_route)
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM users")
+    count = c.fetchone()[0]
+    conn.close()
+    return jsonify({"count": count})
+
+
+
 @app.route('/api/bumps')
 @login_required
 def get_bumps(user_id):
@@ -329,7 +330,7 @@ def get_bumps(user_id):
         {
             "lat": row[0],
             "lon": row[1],
-            "intensity": row[2]  # păstrăm "intensity" în JSON pentru JS
+            "intensity": row[2]
         }
         for row in rows
     ])

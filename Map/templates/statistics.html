@@ -11,26 +11,41 @@
     <!-- Pie chart: distribution by defect type -->
     <div class="col-12 col-md-6 col-lg-4 mb-3">
       <div class="p-3 rounded bg-medium-purple text-white h-100">
-        <h5 class="text-center">Defect Type Distribution</h5>
+        <h5 class="text-center">Distribuție Defecte</h5>
         <div id="defect-type-pie" class="chart-container"></div>
       </div>
     </div>
 
-    <!-- Bubble for another chart (placeholder) -->
+    <!-- Total user reports -->
     <div class="col-12 col-md-6 col-lg-4 mb-3">
-      <div class="p-3 rounded bg-light-purple text-white h-100 d-flex align-items-center justify-content-center">
-        <p class="text-center">More charts soon...</p>
+      <div class="p-3 rounded bg-maroon text-white h-100 d-flex flex-column justify-content-center align-items-center">
+        <i class="bi bi-journal-text fs-1"></i>
+        <h5 class="mt-2">Rapoarte Utilizatori</h5>
+        <p class="fs-3 fw-bold" id="total-reports">...</p>
       </div>
     </div>
 
-    <!-- Bigger bubble -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="p-3 rounded bg-dark text-white h-100 d-flex align-items-center justify-content-center">
-        <p class="text-center">Large chart zone</p>
+    <!-- Total users -->
+    <div class="col-12 col-md-6 col-lg-4 mb-3">
+      <div class="p-3 rounded bg-green text-white h-100 d-flex flex-column justify-content-center align-items-center">
+        <i class="bi bi-people-fill fs-1"></i>
+        <h5 class="mt-2">Utilizatori</h5>
+        <p class="fs-3 fw-bold" id="total-users">...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full-width big chart -->
+  <div class="row">
+    <div class="col-12 mb-3">
+      <div class="p-3 rounded bg-dark text-white h-100">
+        <h5 class="text-center">Tipuri defecte pe lună</h5>
+        <div id="defects-by-month-chart" class="chart-container" style="height: 350px;"></div>
       </div>
     </div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block extra_scripts %}

@@ -18,7 +18,7 @@
 
 .image-item img {
   width: 100%;
-  object-fit: contain;         /* ✅ se va încadra fără tăiere/stretching */
+  object-fit: contain;         /*  se va încadra fără tăiere/stretching */
   background-color: var(--color-black);
   border-radius: 6px;
 }

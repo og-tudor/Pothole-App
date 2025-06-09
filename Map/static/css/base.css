@@ -10,13 +10,23 @@
   --color-cream:   #DFDCE8;
 }
 
-/* LIGHT THEME */
-.light-theme {
-  --color-black:   #F9F7F3;
+
+  /* --color-black:   #F9F7F3;
   --color-purple:  #8197b1;
   --color-mint:    #3D3E45;
   --color-maroon:  #761716;
   --color-orange:  #CE623B;
+  --color-cream:   #25262C;
+  --fg-main:       #25262C;
+  --bg-main:       #F9F7F3; */
+
+/* LIGHT THEME */
+.light-theme {
+  --color-black:   #DAD2D8;
+  --color-purple:  #A6B1E1;
+  --color-mint:    #0F8B8D;
+  --color-maroon:  #985F6F;
+  --color-orange:  #A8201A;
   --color-cream:   #25262C;
   --fg-main:       #25262C;
   --bg-main:       #F9F7F3;
@@ -25,7 +35,7 @@
 }
 
 .light-theme .report-sidebar {
-  background-color: #c7a68c;
+  background-color: #DCD6F7;
 }
 
 .light-theme .report-text {
@@ -130,7 +140,7 @@ body {
 
 /* === Utilitare de fundal pe bază de temă === */
 .bg-dark-purple    { background-color: var(--color-black) !important; color: white !important; }
-.bg-medium-purple  { background-color: #312a55 !important; color: white !important; }
+.bg-medium-purple  { background-color: var(--color-purple) !important; color: white !important; }
 .bg-light-purple   { background-color: var(--color-purple) !important; color: white !important; }
 .bg-green          { background-color: var(--color-mint) !important; color: black !important; }
 .bg-orange         { background-color: var(--color-orange) !important; color: white !important; }

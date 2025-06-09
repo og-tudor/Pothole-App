@@ -160,8 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const formattedTime = formatTimestamp(p.timestamp);
           div.innerHTML = `
             <img src="${p.image}" style="width:100%; border-radius:4px;">
-            <p style="margin:5px 0; font-size: 13px;"><b>🕒 ${formattedTime}</b></p>
-            <p style="margin:0; font-size: 12px; color: #555;">📍 ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
+            <p style="margin:5px 0; font-size: 13px;"><b><i class="bi bi-clock-fill"></i> ${formattedTime}</b></p>
+            <p style="margin:0; font-size: 12px; color: #555;"><i class="bi bi-pin-fill"></i> ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
             <button style="background:#d9534f; color:white; border:none; padding:6px 10px; cursor:pointer; border-radius:4px; margin-top:6px;" onclick="deleteImage('${p.image}')">Reject</button>
           `;
           list.appendChild(div);
@@ -196,11 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const markerColors = {
     pothole: "red",
     alligator_crack: "orange",
-    block_crack: "blue",
     longitudinal_crack: "purple",
     transverse_crack: "green",
-    repair: "darkred",
-    other_corruption: "cadetblue"
   };
 
   const markerIcons = {};
@@ -209,11 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileMap = {
       pothole: 'red',
       alligator_crack: 'orange',
-      block_crack: 'blue',
       longitudinal_crack: 'purple',
       transverse_crack: 'green',
-      repair: 'yellow',
-      other_corruption: 'magenta'
     };
 
     const color = fileMap[defectType] || 'red'; // fallback

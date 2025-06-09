@@ -30,11 +30,11 @@ function loadImagesInGrid() {
 
           div.innerHTML = `
             <img src="${p.image}" alt="Defect">
-            <p class="timestamp">🕒 ${timestamp}</p>
-            <p class="gps">📍 ${lat}, ${lon}</p>
-            <p class="type">⚠️ ${typeLabel}</p>
+            <p class="timestamp"><i class="bi bi-clock-fill"></i> ${timestamp}</p>
+            <p class="gps"><i class="bi bi-pin-fill"></i> ${lat}, ${lon}</p>
+            <p class="type"><i class="bi bi-exclamation-triangle-fill"></i> ${typeLabel}</p>
             <button class="btn btn-sm btn-danger mt-2 w-100" onclick="deleteImage('${p.image}')">
-              🗑️ Șterge imaginea
+              <i class="bi bi-trash-fill"></i> Șterge imaginea
             </button>
           `;
 

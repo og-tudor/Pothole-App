@@ -1,10 +1,9 @@
 import sqlite3
 
-# Conectare la fișierul SQLite existent
 conn = sqlite3.connect("potholes.db")
 cursor = conn.cursor()
 
-# 🧑‍💼 Tabela pentru utilizatori
+# Users
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,94 +14,85 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
-# 🕳️ Tabela pentru gropi detectate cu YOLOv5
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS potholes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT NOT NULL,
-    lat REAL,
-    lon REAL,
-    image_path TEXT
-)
-""")
-
-# 🔧 Tabela pentru denivelări detectate cu accelerometru
+# Bumps - Accelerometre
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS bumps (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     lat REAL,
     lon REAL,
-    bump_severity REAL
+    bump_severity REAL,
+    conf REAL,
+    run_id INTEGER
 )
 """)
 
-# 🐊 Alligator cracks
+# Potholes
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS potholes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL,
+    lat REAL,
+    lon REAL,
+    image_path TEXT,
+    conf REAL,
+    run_id INTEGER
+)
+""")
+
+# Alligator cracks
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS alligator_cracks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     lat REAL,
     lon REAL,
-    image_path TEXT
+    image_path TEXT,
+    conf REAL,
+    run_id INTEGER
 )
 """)
 
-# 🧱 Block cracks
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS block_cracks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT NOT NULL,
-    lat REAL,
-    lon REAL,
-    image_path TEXT
-)
-""")
-
-# ➖ Longitudinal cracks
+# Longitudinal cracks
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS longitudinal_cracks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     lat REAL,
     lon REAL,
-    image_path TEXT
+    image_path TEXT,
+    conf REAL,
+    run_id INTEGER
 )
 """)
 
-# 🔁 Transverse cracks
+# Transverse cracks
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS transverse_cracks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     lat REAL,
     lon REAL,
-    image_path TEXT
+    image_path TEXT,
+    conf REAL,
+    run_id INTEGER
 )
 """)
 
-# 🔧 Repairs
+# Manholes
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS repairs (
+CREATE TABLE IF NOT EXISTS manholes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL,
     lat REAL,
     lon REAL,
-    image_path TEXT
+    image_path TEXT,
+    conf REAL,
+    run_id INTEGER
 )
 """)
 
-# ❓ Other corruptions
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS other_corruptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT NOT NULL,
-    lat REAL,
-    lon REAL,
-    image_path TEXT
-)
-""")
-
+# Reports
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -118,4 +108,4 @@ CREATE TABLE IF NOT EXISTS reports (
 
 conn.commit()
 conn.close()
-print("[✅] Tabelele au fost create cu succes în baza de date existentă!")
+print("Tabelele au fost create cu succes!")

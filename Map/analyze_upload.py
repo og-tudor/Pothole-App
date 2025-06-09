@@ -7,35 +7,32 @@ import sqlite3
 from ultralytics import YOLO
 from math import radians, sin, cos, sqrt, atan2
 
-MODEL = YOLO("../Processing_Data/best.pt")
+MODEL = YOLO("../Processing_Data/best_5_labels.pt")
 MODEL.model.names = {
     0: "pothole",
     1: "alligator_crack",
-    2: "block_crack",
-    3: "longitudinal_crack",
-    4: "other_corruption",
-    5: "repair",
-    6: "transverse_crack"
+    2: "longitudinal_crack",
+    3: "transverse_crack",
+    4: "manhole"
 }
 
 CLASS_THRESHOLDS = {
-    0: 0.13,
-    1: 0.3,
-    3: 0.6,
-    6: 0.4
+    0: 0.6,
+    1: 0.55,
+    2: 0.6,
+    3: 0.35,
+    4: 0.6
 }
-DISABLED_CLASSES = {2, 4, 5}
+DISABLED_CLASSES = {}
 
 IMAGE_DIR = "static/pothole_images"
 DB_PATH = "../Database/potholes.db"
 CLASS_TABLE = {
     "pothole": "potholes",
     "alligator_crack": "alligator_cracks",
-    "block_crack": "block_cracks",
     "longitudinal_crack": "longitudinal_cracks",
     "transverse_crack": "transverse_cracks",
-    "repair": "repairs",
-    "other_corruption": "other_corruptions"
+    "manhole": "manholes"
 }
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
@@ -70,6 +67,10 @@ def analyze_and_save(image_np, lat, lon, problem_type, description, address):
         if conf < threshold:
             continue
 
+        # Dacă este doar manhole, nu considerăm o detecție validă
+        if label == "manhole":
+            continue
+
         table = CLASS_TABLE.get(label)
         if not table or label in labels_detected:
             continue
@@ -81,12 +82,13 @@ def analyze_and_save(image_np, lat, lon, problem_type, description, address):
             annotated_saved = True
 
         cur.execute(f"""
-            INSERT INTO {table} (timestamp, lat, lon, image_path)
-            VALUES (?, ?, ?, ?)
-        """, (timestamp, lat, lon, yolo_img_path))
+            INSERT INTO {table} (timestamp, lat, lon, image_path, conf)
+            VALUES (?, ?, ?, ?, ?)
+        """, (timestamp, lat, lon, yolo_img_path, conf))
 
         saved.append({"label": label, "confidence": conf, "path": final_path})
         labels_detected.add(label)
+
 
     # Salvează imaginea originală dacă nu s-a detectat nimic
     if not saved:
