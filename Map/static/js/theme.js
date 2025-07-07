@@ -3,7 +3,7 @@ function applyTheme(darkModeEnabled) {
   body.classList.remove("dark-theme", "light-theme");
   body.classList.add(darkModeEnabled ? "dark-theme" : "light-theme");
 
-  // Notificăm restul aplicației că tema s-a schimbat
+  // Notify the rest of the application about the theme change
   const event = new CustomEvent("themeChanged", { detail: { dark: darkModeEnabled } });
   window.dispatchEvent(event);
 }
@@ -12,7 +12,8 @@ window.applyTheme = applyTheme;
 
 
 function initializeThemeSwitch() {
-  const darkMode = localStorage.getItem("darkModeEnabled") !== "false"; // default: dark
+  // default dark mode
+  const darkMode = localStorage.getItem("darkModeEnabled") !== "false";
   const switchEl = document.getElementById("darkModeSwitch");
   if (switchEl) switchEl.checked = darkMode;
   applyTheme(darkMode);
@@ -28,3 +29,21 @@ function initializeThemeSwitch() {
     });
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const tabButtons = document.querySelectorAll(".report-text");
+  const currentPath = window.location.pathname;
+
+  tabButtons.forEach(btn => {
+    const parentLink = btn.closest("a");
+    if (!parentLink) return;
+
+    const linkHref = new URL(parentLink.href, window.location.origin).pathname;
+
+    if (linkHref === currentPath) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+});

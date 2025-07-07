@@ -4,12 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeThemeSwitch();
   }
 
-  // Execută doar dacă funcția există (e definită în images.js)
+  // only if it's in images page
   if (typeof loadImagesInGrid === 'function') {
     loadImagesInGrid();
   }
 
-  // let currentBaseLayer = baseLayer;
   let intensityMultiplier = 1.0;
   let heatPoints = [];
   let defectMarkers = [];
@@ -27,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadImagesInGrid();
   }
 
-  // === Tile layers (declare them first)
+  // === Tile layers ===
   const lightTheme = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap contributors & CartoDB",
     subdomains: "abcd",
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const isDark = localStorage.getItem("darkModeEnabled") !== "false";
   let currentBaseLayer = isDark ? darkTheme : lightTheme;
 
-  // === Inițializare hartă
+  // === Map initialization ===
   const map = L.map("map", {
     minZoom: 6,
     maxZoom: 20,
@@ -192,15 +191,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  // === AwesomeMarkers integration
-  const markerColors = {
-    pothole: "red",
-    alligator_crack: "orange",
-    longitudinal_crack: "purple",
-    transverse_crack: "green",
-  };
+  // // === AwesomeMarkers integration
+  // const markerColors = {
+  //   pothole: "red",
+  //   alligator_crack: "orange",
+  //   longitudinal_crack: "purple",
+  //   transverse_crack: "green",
+  // };
 
-  const markerIcons = {};
+  // const markerIcons = {};
 
   function getMarkerIcon(defectType) {
     const fileMap = {
@@ -210,7 +209,8 @@ document.addEventListener("DOMContentLoaded", () => {
       transverse_crack: 'green',
     };
 
-    const color = fileMap[defectType] || 'red'; // fallback
+    // FALLBACK
+    const color = fileMap[defectType] || 'red';
     const path = `/static/icons/${color}-marker.png`;
 
     return L.icon({

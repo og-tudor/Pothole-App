@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, render_template, request, redirect, make_response, url_for
 import threading
-from werkzeug.utils import secure_filename
 from analyze_upload import analyze_and_save
 import sqlite3
 import os
@@ -17,11 +16,11 @@ import io
 app = Flask(__name__)
 db_route = '../Database/potholes.db'
 image_dir = 'static/pothole_images'
-# === Citim cheia JWT din fișier ===
+# === Reading the JWT key from the file ===
 with open('./JWT_key', 'r') as f:
     JWT_SECRET = f.read().strip()
 
-# === Middleware pentru autentificare ===
+# === Checks authorization ===
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -71,12 +70,12 @@ def delete_report(user_id):
     if not report_id or not image_path:
         return jsonify({"error": "Date lipsă"}), 400
 
-    # Normalizează calea
+    # Standardize the image path
     if image_path.startswith("./"):
         image_path = image_path[2:]
     full_image_path = os.path.abspath(image_path)
 
-    # Șterge fișierul imagine de pe disc
+    # Deletes the image file from disk
     try:
         if os.path.exists(full_image_path):
             os.remove(full_image_path)
@@ -85,7 +84,7 @@ def delete_report(user_id):
     except Exception as e:
         print(f"[EROARE] La ștergerea imaginii: {e}")
 
-    # Șterge raportul și intrările din tabelele de defecte
+    # Deletes from the DB the report and any related entries
     image_path_db = "./" + image_path if not image_path.startswith("./") else image_path
     defect_tables = [
         "potholes",
@@ -97,10 +96,10 @@ def delete_report(user_id):
     conn = sqlite3.connect(db_route)
     cur = conn.cursor()
 
-    # 1. Șterge raportul
+    # Delete Report
     cur.execute("DELETE FROM reports WHERE id = ?", (report_id,))
 
-    # 2. Șterge orice rând cu acea imagine din tabelele de defecte
+    # Delete all entries in defect tables that match the image path
     for table in defect_tables:
         cur.execute(f"DELETE FROM {table} WHERE image_path = ?", (image_path_db,))
 
@@ -147,24 +146,23 @@ def submit_report():
         description = request.form.get("description", "")
         image_file = request.files["image"]
 
-        # Citește imaginea în memorie
+        # reads the image file in memory
         in_memory_file = io.BytesIO(image_file.read())
         file_bytes = np.asarray(bytearray(in_memory_file.read()), dtype=np.uint8)
         image_np = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        # Rulează procesarea într-un thread separat (asincron)
+        # start processing in a separate thread
         threading.Thread(
             target=analyze_and_save,
             args=(image_np, lat, lon, problem_type, description, address),
             daemon=True
         ).start()
 
-        # Trimite imediat confirmarea și reîncarcă pagina
+        # Imeddiate confirmation and page reload
         return redirect(url_for("report_problem_view", submitted=1))
 
     return render_template("report.html")
 
-# === Pagina de înregistrare ===
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -180,7 +178,7 @@ def register():
                         (username, email, password))
             conn.commit()
         except sqlite3.IntegrityError:
-            # trimitem mesajul de eroare către HTML
+            # Error msg
             return render_template('register.html', error="Utilizator sau email deja existent!")
         finally:
             conn.close()
@@ -195,7 +193,6 @@ def images_view(user_id):
     return render_template("images.html", title="Imagini")
 
 
-# === Pagina de login ===
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -214,13 +211,12 @@ def login():
             resp.set_cookie('token', token, httponly=True, max_age=86400)
             return resp
 
-        # Trimit flag de eroare în template
+        # Error flag in template
         return render_template('login.html', error=True)
 
     return render_template('login.html')
 
 
-# === Logout ===
 @app.route('/logout')
 def logout():
     resp = make_response(redirect('/login'))
@@ -251,17 +247,17 @@ def delete_image(user_id):
     if not image_path:
         return jsonify({"error": "Lipsă cale imagine"}), 400
 
-    # Creează calea absolută spre fișier
+    # creates the full path to the image
     full_image_path = os.path.abspath(os.path.join('static', image_path.replace("/static/", "")))
 
-    # Șterge fișierul imagine de pe disc
+    # deletes the image file from disk
     try:
         if os.path.exists(full_image_path):
             os.remove(full_image_path)
     except Exception as e:
         print(f"Eroare la ștergerea imaginii: {e}")
 
-    # Șterge intrarea din baza de date din toate tabelele relevante
+    # deletes the entry from the database
     image_path_db = image_path.replace("/static", "./static")
     defect_tables = [
         "potholes",

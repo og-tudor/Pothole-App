@@ -14,7 +14,7 @@ function drawDefectsByMonthChart(data) {
 
     const year = def.timestamp.substring(0, 4);
     const month = def.timestamp.substring(4, 6);
-    const key = `${year}-${month}`; // ex: "2025-06"
+    const key = `${year}-${month}`;
     grouped[key] = (grouped[key] || 0) + 1;
   });
 

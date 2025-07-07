@@ -1,4 +1,4 @@
-/* === Paletă de culori personalizate === */
+/* === Dark Theme === */
 :root {
   --color-black:   #120F1F;
   --color-purple:  #514A73;
@@ -10,45 +10,6 @@
   --color-cream:   #DFDCE8;
 }
 
-
-  /* --color-black:   #F9F7F3;
-  --color-purple:  #8197b1;
-  --color-mint:    #3D3E45;
-  --color-maroon:  #761716;
-  --color-orange:  #CE623B;
-  --color-cream:   #25262C;
-  --fg-main:       #25262C;
-  --bg-main:       #F9F7F3; */
-
-/* LIGHT THEME */
-.light-theme {
-  --color-black:   #DAD2D8;
-  --color-purple:  #A6B1E1;
-  --color-mint:    #0F8B8D;
-  --color-maroon:  #985F6F;
-  --color-orange:  #A8201A;
-  --color-cream:   #25262C;
-  --fg-main:       #25262C;
-  --bg-main:       #F9F7F3;
-  background-color: var(--bg-main);
-  color: var(--fg-main);
-}
-
-.light-theme .report-sidebar {
-  background-color: #DCD6F7;
-}
-
-.light-theme .report-text {
-  color: var(--fg-main);
-}
-
-.light-theme .report-text:hover,
-.light-theme .report-text.active {
-  background: #DCDCDC;
-  color: black;
-}
-
-/* DARK THEME */
 .dark-theme {
   background: var(--color-black);
   color: var(--color-cream);
@@ -64,12 +25,43 @@
 
 .dark-theme .report-text:hover,
 .dark-theme .report-text.active {
+  border-radius: 5px;
   background: #564b72;
 }
 
 
+/* LIGHT THEME */
+.light-theme {
+  --color-black:   #DAD2D8;
+  --color-purple:  #A6B1E1;
+  --color-mint:    #6dbdbe;
+  --color-maroon:  #985F6F;
+  --color-orange:  #A8201A;
+  --color-cream:   #25262C;
+  --fg-main:       #25262C;
+  --bg-main:       #F9F7F3;
+  background-color: var(--bg-main);
+  color: var(--fg-main);
+}
 
-/* === Reset + font general === */
+.light-theme .report-sidebar {
+  background-color: #b9b9b9;
+}
+
+.light-theme .report-text {
+  color: var(--fg-main);
+}
+
+.light-theme .report-text:hover,
+.light-theme .report-text.active {
+  border-radius: 5px;
+  background: #dddddd;
+  color: black;
+}
+
+
+
+/* === Reset General === */
 * {
   margin: 0;
   padding: 0;
@@ -86,7 +78,7 @@ body {
   font-size: 1rem;
 }
 
-/* === Sidebar general === */
+/* === Sidebar === */
 .report-sidebar {
   width: 240px;
   height: 100vh;
@@ -119,7 +111,6 @@ body {
   color: white;
   padding: 5px 4px;
   border-radius: 3px;
-  transition: background 0.2s;
 }
 
 .report-text.active,
@@ -129,7 +120,7 @@ body {
   font-weight: bold;
 }
 
-/* === Wrapper conținut principal === */
+/* === Main Wrapper === */
 .main-wrapper {
   flex: 1;
   display: flex;
@@ -138,7 +129,7 @@ body {
   overflow-y: auto;
 }
 
-/* === Utilitare de fundal pe bază de temă === */
+/* === Change theme color === */
 .bg-dark-purple    { background-color: var(--color-black) !important; color: white !important; }
 .bg-medium-purple  { background-color: var(--color-purple) !important; color: white !important; }
 .bg-light-purple   { background-color: var(--color-purple) !important; color: white !important; }
@@ -147,26 +138,11 @@ body {
 .bg-gold           { background-color: var(--color-gold) !important; color: black !important; }
 .bg-cream          { background-color: var(--color-cream) !important; color: black !important; }
 .bg-maroon         { background-color: var(--color-maroon) !important; color: white !important; }
-
 .text-orange       { color: var(--color-orange) !important; }
 .text-cream        { color: var(--color-cream) !important; }
 .text-lilac        { color: var(--color-lilac) !important; }
 
-/* === Container cu statistici / grafice === */
-.statistic1, .statistic2, .statistic3 {
-  background: var(--color-orange);
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  padding: 1.5rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-}
-
-/* Grafic full-width + centrare */
+/* Big Graph */
 #chart, #graph-container {
   width: 100%;
   height: 100%;
@@ -177,13 +153,13 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* === Utilitare Bootstrap override === */
+/* === Bootstrap override === */
 .bg-primary, .bg-secondary, .bg-light, .bg-dark {
   background-color: var(--color-purple) !important;
   color: white !important;
 }
 
-/* === Butoane și interacțiuni extra === */
+/* === General Buttons === */
 button {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -195,4 +171,13 @@ button:hover {
 
 .btn-danger:hover {
   background-color: #a63439 !important;
+}
+
+.report-text.active,
+.report-text:hover {
+  margin-left: -20px !important;
+  padding-left: 20px !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  width: calc(100% + 20px);
 }

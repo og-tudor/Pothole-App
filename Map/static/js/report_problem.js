@@ -10,7 +10,7 @@ function updateNoDetectionCardColors() {
   const isDark = document.body.classList.contains("dark-theme");
   document.querySelectorAll(".no-detection-report").forEach(card => {
     card.style.backgroundColor = isDark ? "#7c0a02" : "#cf8a91";
-    card.style.color = isDark ? "white" : "black"; // sau altă culoare, dacă preferi
+    card.style.color = isDark ? "white" : "black";
   });
 }
 
@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   loadReportsList();
 
-  // Afișează alert dacă parametrul `submitted=1` e prezent în URL
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get("submitted") === "1") {
     alert("Raportul a fost trimis cu succes! Va fi analizat în câteva secunde.");

@@ -9,7 +9,6 @@
   --color-cream:   #DFDCE8;
 }
 
-/* === Corpul paginii login/register === */
 .auth-body {
   margin: 0;
   padding: 0;
@@ -24,7 +23,7 @@
   overflow: hidden;
 }
 
-/* SVG decorativ suprapus */
+/* SVG background */
 .auth-body::before {
   content: "";
   position: absolute;
@@ -38,7 +37,7 @@
   z-index: 0;
 }
 
-/* === Container formular === */
+/* === Form Conatiner === */
 .auth-container {
   position: relative;
   z-index: 1;
@@ -55,7 +54,7 @@
   color: var(--color-cream);
 }
 
-/* === Formular === */
+/* === Form === */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -90,7 +89,7 @@
   background-color: var(--color-gold);
 }
 
-/* === Footer link === */
+/* === Footer Link === */
 .auth-footer {
   text-align: center;
   margin-top: 10px;
@@ -101,7 +100,7 @@
   text-decoration: underline;
 }
 
-/* === Alertă Bootstrap override (dacă vrei consistentă pe temă) === */
+/* === JS Alert === */
 .alert {
   font-size: 0.9rem;
   border-radius: 6px;

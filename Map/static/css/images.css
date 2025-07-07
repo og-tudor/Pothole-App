@@ -1,6 +1,6 @@
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* <= dimensiune echilibrată */
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 16px;
   overflow-y: auto;
   max-height: calc(100vh - 100px);
@@ -18,7 +18,7 @@
 
 .image-item img {
   width: 100%;
-  object-fit: contain;         /*  se va încadra fără tăiere/stretching */
+  object-fit: contain;
   background-color: var(--color-black);
   border-radius: 6px;
 }

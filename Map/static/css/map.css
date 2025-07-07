@@ -1,15 +1,4 @@
-/* :root {
-  --color-black:   #120F1F;
-  --color-purple:  #514A73;
-  --color-mint:    #5FB68B;
-  --color-maroon:  #793243;
-  --color-lilac:   #B1A0DB;
-  --color-orange:  #BE7462;
-  --color-gold:    #CDA27E;
-  --color-cream:   #DFDCE8;
-} */
-
-/* === Hartă principală === */
+/* === Map === */
 #map-container {
   height: 85vh;
   display: flex;
@@ -34,12 +23,12 @@
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 5px auto; /* Centrare verticală */
+    margin: 5px auto;
 }
 
 
 .leaflet-popup-content-wrapper {
-  min-width: 600px; /* sau 500px, vezi ce arată bine */
+  min-width: 600px;
   max-width: none !important;
   width: auto !important;
 }
@@ -68,12 +57,11 @@
 
 
 
-/* === Legendă heatmap + slider === */
+/* === Legend Heatmap + Slider === */
 #legend {
     position: absolute;
     bottom: 100px;
     left: 10px;
-    /* color black */
     background: var(--color-black);
     padding: 8px;
     border-radius: 8px;
@@ -96,7 +84,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  align-items: flex-start; /* text și slider aliniate la stânga */
+  align-items: flex-start;
 }
 
 
@@ -116,19 +104,7 @@
     z-index: 1000;
 }
 
-/* #settingsBtn {
-    position: absolute;
-    background-color: transparent;
-    color: white;
-    border: 1px solid var(--color-lilac);
-    backdrop-filter: blur(4px);
-    top: 10px;
-    left: 230px;
-    z-index: 1000;
-} 
-*/
-
-/* === Sidebar imagini detectate === */
+/* === Sidebar detected images === */
 #sidebar {
     position: fixed;
     top: 0;
@@ -201,12 +177,9 @@
   border: 1px solid #aaa;
 }
 
-/* Culoare markerelor Awesome */
-.bg-red       { background-color: #BE6262; }
-.bg-orange    { background-color: #F4E64D; }
-.bg-yellow    { background-color: #BEBE62; }
-.bg-blue      { background-color: #62B3BE; }
-.bg-purple    { background-color: #AD60FF; }
-.bg-green     { background-color: #78FF60; }
-.bg-magenta   { background-color: #E066C9; }
+#defect-legend .bg-red    { background-color: #7d4040 !important; }
+#defect-legend .bg-orange { background-color: #be8e62 !important; }
+#defect-legend .bg-blue   { background-color: #9394da !important; }
+#defect-legend .bg-green  { background-color: #78ff60 !important; }
+
 

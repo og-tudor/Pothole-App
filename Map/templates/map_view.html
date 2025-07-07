@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block content %}
-<!-- Wrapper relativ pentru hartă și controale -->
+<!-- Wrapper for map and controls -->
 <div id="map-container" class="position-relative d-flex" style="height: 85vh;">
   
-  <!-- Harta propriu-zisă -->
+  <!-- Map -->
   <div id="map" class="flex-grow-1"></div>
 
   <div id="defect-legend" class="leaflet-control legend rounded shadow p-2">
-    <h6 class="mb-2">🗺️ Tipuri defecte</h6>
+    <h6 class="mb-2"><i class="bi bi-map"></i> Tipuri defecte</h6>
     <div class="legend-entry"><span class="legend-icon bg-red"></span> Pothole</div>
     <div class="legend-entry"><span class="legend-icon bg-orange"></span> Alligator crack</div>
     <div class="legend-entry"><span class="legend-icon bg-blue"></span> Longitudinal crack</div>
@@ -21,7 +21,7 @@
 
 
 
-  <!-- Butoane și controale poziționate absolut -->
+  <!-- Buttons and sliders -->
   <button id="switchStyleBtn" class="btn btn-light">
       <i class="bi bi-globe"></i> Schimbă stilul
   </button>
@@ -42,13 +42,8 @@
 
 </div>
 
-<!-- Sidebar pentru imagini detectate -->
-<div id="sidebar">
-  <h5>Imagini detectate</h5>
-  <div id="imageList"></div>
-</div>
 
-<!-- Overlay când sidebar-ul e deschis -->
+<!-- Overlay -->
 <div id="overlay"></div>
 {% endblock %}
 

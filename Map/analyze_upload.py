@@ -67,7 +67,7 @@ def analyze_and_save(image_np, lat, lon, problem_type, description, address):
         if conf < threshold:
             continue
 
-        # Dacă este doar manhole, nu considerăm o detecție validă
+        # If it's just a manhole and not any other defect, No valid detection
         if label == "manhole":
             continue
 
@@ -75,7 +75,7 @@ def analyze_and_save(image_np, lat, lon, problem_type, description, address):
         if not table or label in labels_detected:
             continue
 
-        # Salvează imaginea o singură dată
+        # Save the image
         if not annotated_saved:
             annotated = results.plot()
             cv2.imwrite(final_path, annotated)
@@ -90,11 +90,11 @@ def analyze_and_save(image_np, lat, lon, problem_type, description, address):
         labels_detected.add(label)
 
 
-    # Salvează imaginea originală dacă nu s-a detectat nimic
+    # Save the original image if there are no detections
     if not saved:
-        cv2.imwrite(final_path, image_np)  # fără adnotări
+        cv2.imwrite(final_path, image_np)
 
-    # Salvează raportul o singură dată, cu mențiune dacă nu sunt detecții
+    # Saving the report, even if no detections were found (but adds a note)
     cur.execute("""
         INSERT INTO reports (timestamp, problem_type, image_path, description, lat, lon, address)
         VALUES (?, ?, ?, ?, ?, ?, ?)

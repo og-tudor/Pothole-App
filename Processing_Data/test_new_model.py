@@ -9,10 +9,10 @@ import threading
 import warnings
 import math
 import sqlite3
-from ultralytics import YOLO  # 🔄 import nou pentru YOLOv8/11
+from ultralytics import YOLO
 
-BUMP_THRESHOLD = 1.8
-POTHOLE_THRESHOLD = 2.8
+BUMP_THRESHOLD = 2.1
+POTHOLE_THRESHOLD = 4.0
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -23,7 +23,6 @@ os.makedirs(FLASK_IMAGE_DIR, exist_ok=True)
 SAVE_DIR = "./test_results"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-# === Determină run_id ===
 def get_next_run_id(db_path):
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
@@ -39,17 +38,15 @@ def get_next_run_id(db_path):
             result = cur.fetchone()
             if result and result[0] is not None:
                 max_run_id = max(max_run_id, result[0])
-        except sqlite3.OperationalError as e:
-            print(f"[WARN] Tabela {table} nu are run_id sau nu e creată încă.")
+        except sqlite3.OperationalError:
+            print(f"[WARN] Table {table} missing run_id or not created yet.")
 
     conn.close()
     return max_run_id + 1
 
 RUN_ID = get_next_run_id(FLASK_DB_PATH)
-print(f"[🆕] run_id curent: {RUN_ID}")
+print(f"[INFO] Current run_id: {RUN_ID}")
 
-
-# 🧬 YOLOv11
 model = YOLO("best_5_labels.pt")
 model.conf = POTHOLE_THRESHOLD
 
@@ -62,22 +59,19 @@ model.model.names = {
 }
 
 class_thresholds = {
-    0: 0.72,   # pothole
-    1: 0.6,   # alligator crack
-    2: 0.72,   # longitudinal crack
-    3: 0.6,    # transverse crack
-    4: 0.6     # manhole
+    0: 0.7,
+    1: 0.65,
+    2: 0.75,
+    3: 0.6,
+    4: 0.7
 }
 disabled_classes = {}
 
-
-print("Clase în model:")
+print("Model classes:")
 for i, name in enumerate(model.names):
     print(f"{i}: {name}")
 
-
 last_saved = {}
-
 last_gps = {"lat": None, "lon": None}
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -93,17 +87,17 @@ data = b""
 
 PI_IPS = ['192.168.1.138', '192.168.4.1', '192.168.5.1']
 
-def try_connect(ip_list, port, desc="conexiune"):
+def try_connect(ip_list, port, desc="connection"):
     for ip in ip_list:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(3)
             s.connect((ip, port))
-            print(f"[🟢] Reușit {desc} la {ip}:{port}")
+            print(f"Connected to {desc} at {ip}:{port}")
             return s
         except Exception as e:
-            print(f"[⛔] Eșuat {desc} la {ip}:{port} — {e}")
-    raise ConnectionError(f"[💥] Nu s-a putut stabili {desc} pe niciun IP.")
+            print(f"Failed to connect to {desc} at {ip}:{port} — {e}")
+    raise ConnectionError(f"Could not establish {desc} on any IP.")
 
 def listen_sensor_data():
     global last_gps
@@ -113,7 +107,7 @@ def listen_sensor_data():
 
     while True:
         try:
-            sensor_sock = try_connect(PI_IPS, 9000, "senzor (real)")
+            sensor_sock = try_connect(PI_IPS, 9000, "sensor")
 
             while True:
                 raw = sensor_sock.recv(1024).decode().strip()
@@ -122,7 +116,6 @@ def listen_sensor_data():
 
                 try:
                     denivelare, acc_z, lat, lon = map(float, raw.split(","))
-                    print(f"[🛣️] Denivelare: {denivelare:.2f} | Z: {acc_z:.2f} | GPS: {lat}, {lon}")
                     if lat != 0.0 and lon != 0.0:
                         last_valid["lat"] = lat
                         last_valid["lon"] = lon
@@ -149,14 +142,14 @@ def listen_sensor_data():
                         ))
                         conn.commit()
                         conn.close()
-                        print(f"[📥] Denivelare salvată în DB @ ({last_gps['lat']}, {last_gps['lon']})")
+                        print(f"[INFO] Bump saved to DB @ ({last_gps['lat']}, {last_gps['lon']})")
 
                 except ValueError:
-                    print(f"[⚠️] Date senzor invalide: {raw}")
+                    print(f"[WARN] Invalid sensor data: {raw}")
                     continue
 
         except Exception as e:
-            print(f"[‼️] Eroare flux senzor: {e}. Reîncerc în 3 secunde...")
+            print(f"[ERR] Sensor stream error: {e}. Retrying in 3 seconds...")
             time.sleep(3)
             continue
         finally:
@@ -183,7 +176,7 @@ def receive_video():
                 while len(data) < payload_size:
                     packet = sock.recv(4 * 1024)
                     if not packet:
-                        raise ConnectionError("Conexiune întreruptă la citire lungime")
+                        raise ConnectionError("Disconnected while reading length")
                     data += packet
 
                 packed_msg_size = data[:payload_size]
@@ -193,7 +186,7 @@ def receive_video():
                 while len(data) < msg_size:
                     packet = sock.recv(4 * 1024)
                     if not packet:
-                        raise ConnectionError("Conexiune întreruptă la citire frame")
+                        raise ConnectionError("Disconnected while reading frame")
                     data += packet
 
                 frame_data = data[:msg_size]
@@ -201,40 +194,34 @@ def receive_video():
 
                 frame = cv2.imdecode(np.frombuffer(frame_data, dtype=np.uint8), cv2.IMREAD_COLOR)
                 if frame is None:
-                    print("[❌] Frame corupt — skip")
+                    print("[ERR] Corrupted frame — skipping")
                     continue
 
                 results = model(frame, verbose=False)[0]
-                # print(f"[🔍] Detectări YOLOv8: {len(results.boxes)}")
-
 
                 found_valid = False
                 for i, box in enumerate(results.boxes):
                     conf = float(box.conf[0])
                     cls = int(box.cls[0])
                     label = model.names.get(cls, f"cls_{cls}").lower().replace(" ", "_")
-                    print(f"[📦] box[{i}] → cls: {cls} ({label}), conf: {conf:.2f}")
-                    
+                    print(f"[BOX] {i} → cls: {cls} ({label}), conf: {conf:.2f}")
+
                     if cls in disabled_classes:
                         continue
-                    # Verificare threshold per clasa
                     threshold = class_thresholds.get(cls, POTHOLE_THRESHOLD)
                     if conf < threshold:
-                        # print(f"[⬇️] Confidență sub prag pentru {label}: {conf:.2f} < {threshold:.2f}")
                         continue
-                    # if conf < POTHOLE_THRESHOLD:
-                    #     continue
 
                     if label not in class_to_table:
-                        print(f"[ℹ️] Etichetă necunoscută: {label}")
+                        print(f"[INFO] Unknown label: {label}")
                         continue
 
-                    print(f"[📌] Detectat: {label} @ {conf:.2f}")
+                    print(f"[DETECT] {label} @ {conf:.2f}")
 
                     if last_gps["lat"] is None or last_gps["lon"] is None:
                         last_gps["lat"] = 44.453944
                         last_gps["lon"] = 26.028722
-                        print("[ℹ️] GPS lipsă — fallback")
+                        print("[INFO] Missing GPS — using fallback")
 
                     lat, lon = float(last_gps["lat"]), float(last_gps["lon"])
                     now = time.time()
@@ -248,10 +235,10 @@ def receive_video():
                     if recent or too_close:
                         reason = []
                         if recent:
-                            reason.append("timp")
+                            reason.append("time")
                         if too_close:
-                            reason.append("distanță")
-                        print(f"[⛔] Dublură {label} — ignorat ({' și '.join(reason)})")
+                            reason.append("distance")
+                        print(f"[SKIP] Duplicate {label} ({' and '.join(reason)})")
                         continue
 
                     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -275,24 +262,23 @@ def receive_video():
 
                         conn.commit()
                         conn.close()
-                        print(f"[✅] {label} salvat în DB @ ({lat}, {lon})")
+                        print(f"[SAVED] {label} to DB @ ({lat}, {lon})")
 
                         last_saved[label] = {"timestamp": now, "lat": lat, "lon": lon}
                         found_valid = True
                     except Exception as db_err:
-                        print(f"[❌] Eroare DB: {db_err}")
-
+                        print(f"[ERR] DB error: {db_err}")
 
                 if not found_valid:
                     annotated = results.plot()
                 if os.name == 'nt' or os.environ.get('DISPLAY'):
                     cv2.imshow("YOLOv8 TCP", annotated)
                     if cv2.waitKey(1) == 27:
-                        print("[🚪] ESC apăsat - ieșire")
+                        print("[EXIT] ESC pressed - exiting")
                         return
 
         except Exception as e:
-            print(f"[🔁] Eroare flux video: {e}. Reîncerc în 3 secunde...")
+            print(f"[RETRY] Video stream error: {e}. Retrying in 3 seconds...")
             time.sleep(3)
         finally:
             try:
@@ -301,7 +287,5 @@ def receive_video():
                 pass
             cv2.destroyAllWindows()
 
-
-# === Start threads ===
 threading.Thread(target=listen_sensor_data, daemon=True).start()
 receive_video()
